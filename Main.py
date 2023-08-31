@@ -1,4 +1,5 @@
 import numpy as np
+from scipy.optimize import fsolve
 import matplotlib.pyplot as plt
 
 # Important notes:
@@ -39,9 +40,21 @@ SFC = 1
 ## Empty weight fraction Isak
 
 # In
+Wcrew = 1
+Wpayload = 1
+Wf_W0 = 0.5
+a = 0.92  # This needs adjustment
+c = -0.05  # This needs adjustment
+We_W0initialGuess = 0.6  # From lecture 1
+
+
+def We_frac_equation(We_W0_inner):
+    return a * ((Wcrew + Wpayload) / (1 - Wf_W0 - We_W0_inner)) ** c - We_W0_inner
+
 
 # Out
-We_W0 = 1
+We_W0 = fsolve(We_frac_equation, We_W0initialGuess)
+print(We_frac_equation(We_W0))
 
 ## Initial fuel fraction Isak
 
