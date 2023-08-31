@@ -25,11 +25,11 @@ WPayload = 1
 
 # In
 Swet_Sref = 5.95
-A = 1
-KLD = 15.5 # For civil jets Isak
+A = 9.16  # Aspect ratio http://www.b737.org.uk/techspecsdetailed.htm
+KLD = 15.5  # For civil jets
 
 # Out
-L_Dmax = 1
+L_Dmax = KLD * np.sqrt(A/Swet_Sref)
 
 ## Specific fuel consumption Isak
 
