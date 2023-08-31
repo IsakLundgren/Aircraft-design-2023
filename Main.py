@@ -24,7 +24,7 @@ WPayload = 1
 ## Lift to drag ratio
 
 # In
-Swet_Sref = 1
+Swet_Sref = 5.95
 A = 1
 KLD = 15.5 # For civil jets
 
