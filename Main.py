@@ -19,15 +19,15 @@ passengerCount = 90
 crewCount = 5
 
 # Out
-WCrew = 1
-WPayload = 1
+Wcrew = crewCount * passengerWeight
+Wpayload = passengerCount * passengerWeight
 
 ## Lift to drag ratio Isak
 
 # In
 Swet_Sref = 5.95
 A = 9.16  # Aspect ratio http://www.b737.org.uk/techspecsdetailed.htm
-KLD = 15.5  # For civil jets
+KLD = 12  # For "Turboprop"
 
 # Out
 L_Dmax = KLD * np.sqrt(A/Swet_Sref)
@@ -40,9 +40,9 @@ SFC = 1
 ## Empty weight fraction Isak
 
 # In
-Wcrew = 1
-Wpayload = 1
-Wf_W0 = 0.5
+# Wcrew = 1
+# Wpayload = 1
+Wf_W0 = 0.3
 a = 0.92  # This needs adjustment
 c = -0.05  # This needs adjustment
 We_W0initialGuess = 0.6  # From lecture 1
@@ -53,8 +53,8 @@ def We_frac_equation(We_W0_inner):
 
 
 # Out
-We_W0 = fsolve(We_frac_equation, We_W0initialGuess)
-print(We_frac_equation(We_W0))
+We_W0 = float(fsolve(We_frac_equation, We_W0initialGuess))
+print(We_W0)
 
 ## Initial fuel fraction Isak
 
