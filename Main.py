@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 from scipy.optimize import fsolve
 import matplotlib.pyplot as plt
 
@@ -33,6 +34,10 @@ KLD = 12  # For "Turboprop"
 L_Dmax = KLD * np.sqrt(A/Swet_Sref)
 
 ## Specific fuel consumption Isak
+
+# Read excel SFC data
+dfSFC = pd.read_excel('excel/SFC_prop.xlsx')
+plt.plot(dfSFC.loc[''])
 
 # Out
 SFC = 1
