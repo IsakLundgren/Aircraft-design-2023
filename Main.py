@@ -49,8 +49,8 @@ ax.scatter(yearData, SFCData, c='b', label='Reference data')
 
 
 # Create curvefit
-def mockFunction(year, a, b):
-    return a / year + b
+def mockFunction(year, numerator, term):
+    return numerator / year + term
 
 
 # noinspection PyTupleAssignmentBalance
@@ -61,8 +61,8 @@ ax.plot(interpYear, interpSFC, '--r', label='Interpolation line')
 
 
 # Find
-hydrogenSFCAdjustment = -1e-9  # TODO adjust
-SFC = param[0] / releaseYear + param[1] + hydrogenSFCAdjustment
+hydrogenSFCAdjustment = -0.05  # TODO adjust
+SFC = (param[0] / releaseYear + param[1]) * (1 + hydrogenSFCAdjustment)
 ax.scatter([releaseYear], [SFC],
            s=plt.rcParams['lines.markersize'] ** 2 * 2,
            c='k', marker='x', label='Model SFC (adjusted)')
