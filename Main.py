@@ -46,13 +46,13 @@ We_W0 = 1
 ## Take off fuel fraction Isak
 
 # Out
-Wtakeoff_W0 = 1
+Winit_W0 = 1
 
 ## Climb fuel fraction Mustafa
 
 # Out
 
-Wclimb_Wtakeoff = 0.985  # From historical data
+Wclimb_Winit = 0.985  # From historical data
 ## Cruise fuel fraction Mustafa. The cruise fraction includes the descent part as mentioned in Raymer for initial sizing
 
 # Out
@@ -69,6 +69,8 @@ Wcruise_climb = np.exp((-range*SFC_cruise*gravity)/(cruise_speed * L_Dcruise))
 
 
 ## Loiter fuel fraction Mustafa
+Wdescent_cruise = 1
+
 
 # Out
 endurance = 20 * 60  # s #Converted from minutes
@@ -82,7 +84,7 @@ Wloiter_Wdescent = np.exp((-endurance*SFC_loiter*gravity)/L_Dcruise)
 ## Landing fuel fraction Mustafa
 
 # Out
-Wlanding_Wloiter = 0.995 # from historical data
+Wfinal_Wloiter = 0.995 # from historical data
 
 ## Contingency fuel fraction Jay
 
