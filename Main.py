@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 from scipy.optimize import fsolve
+from scipy.optimize import curve_fit
 import matplotlib.pyplot as plt
 
 # Important notes:
@@ -9,7 +10,7 @@ import matplotlib.pyplot as plt
 
 ### Predefined parameters
 
-passengerWeight = 105 # kg
+passengerWeight = 105  # kg
 passengerCount = 90
 
 ### Calculations
@@ -31,28 +32,42 @@ A = 9.16  # Aspect ratio http://www.b737.org.uk/techspecsdetailed.htm
 KLD = 12  # For "Turboprop"
 
 # Out
-L_Dmax = KLD * np.sqrt(A/Swet_Sref)
+L_Dmax = KLD * np.sqrt(A / Swet_Sref)
 
 ## Specific fuel consumption Isak
-
-# Read excel SFC data
-dfSFC = pd.read_excel('excel/SFC_prop.xlsx')
-
-yearData = dfSFC.loc[:, 'year']
-SFCData = dfSFC.loc[:, 'SFC kg/Ws']
-
-# Create curvefit
-def mockFunction(year, a, b):
-    return a / (year ** b)
 
 # Create plot
 fig, ax = plt.subplots()
 
+# Read excel SFC data
+dfSFC = pd.read_excel('excel/SFC_prop.xlsx')
+yearData = dfSFC.loc[:, 'year']
+SFCData = dfSFC.loc[:, 'SFC kg/Ws']
+
 ax.scatter(yearData, SFCData, c='red', label='Reference data')
+
+
+# Create curvefit
+def mockFunction(year, a, b):
+    return a / year + b
+
+
+param, param_cov = curve_fit(mockFunction, yearData, SFCData)
+interpYear = np.linspace(1940, 2050, 1000)
+interpSFC = param[0] / interpYear + param[1]
+ax.plot(interpYear, interpSFC, '--b', label='Interpolation line')
+
+
+# Find
+
+# Plot settings
 ax.set_title('SFC - year relation')
 ax.set_ylabel('SFC [kg W-1 s-1]')
 ax.set_xlabel('Year')
+ax.grid()
+ax.legend()
 
+# Save figure
 figureDPI = 200
 fig.set_size_inches(8, 6)
 fig.savefig('img/SFCYearRelation.png', dpi=figureDPI)
