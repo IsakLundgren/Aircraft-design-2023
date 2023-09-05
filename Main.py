@@ -97,7 +97,6 @@ cruise_speed = 1
 L_Dcruise = 1
 
 # Out
-Wdiv_cruise = 1
 Wdiv_cruise = np.exp(((-R) * SFC_cruise) * gravity / (cruise_speed * L_Dcruise))
 
 ## Diversion fuel fraction - Descent Jay
@@ -112,26 +111,24 @@ Wdiv_cruise = 1
 Wdiv_descent = 1
 
 # Out
-Wdiv_total = Wdiv_climb * Wdiv_cruise * Wdiv_descent
+Wdiv_final = Wdiv_climb * Wdiv_cruise * Wdiv_descent
 
 ## Fuel weight fraction Jay
 
 # In
 Wfinal_W0 = Wclimb_Winit * Wcruise_Wclimb * Wdescent_Wcruise * Wloiter_Wdescent * \
-            Wfinal_Wloiter * Wdiv_total
-Wfinal_W0 = 1
+            Wfinal_Wloiter * Wdiv_final
 
 # Out
-W_f_by_W_0 = 1
-W_f_by_W_0 = 1.06 * (1-Wfinal_W0)
+Wf_W0 = 1.06 * (1-Wfinal_W0)
 
 ## Take off weight Jay
 
 # In
-W_crew = 1
-W_payload = 1
-W_e_by_W_0 = 1
-W_f_by_W_0 = 1
+Wcrew = 1
+Wpayload = 1
+We_W0 = 1
+Wf_W0 = 1
 
 # Out
-W_0 = (W_crew + W_payload) / (1 - W_e_by_W_0 - W_f_by_W_0)
+W_0 = (Wcrew + Wpayload) / (1 - We_W0 - Wf_W0)
