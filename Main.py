@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 
 passengerWeight = 105 # kg
 passengerCount = 90
-gravity = 9.81
+gravity = 9.82
 
 ### Calculations
 
@@ -44,7 +44,7 @@ SFC = 1
 # Out
 We_W0 = 1
 
-## Initial fuel fraction Isak
+## Take off fuel fraction Isak
 
 # Out
 Winit_W0 = 1
@@ -52,27 +52,40 @@ Winit_W0 = 1
 ## Climb fuel fraction Mustafa
 
 # Out
-Wclimb_Winit = 1
 
-## Cruise fuel fraction Mustafa
-
-# Out
-Wcruise_Wclimb = 1
-
-## Descent fuel fraction Mustafa
+Wclimb_Winit = 0.985  # From historical data
+## Cruise fuel fraction Mustafa. The cruise fraction includes the descent part as mentioned in Raymer for initial sizing
 
 # Out
-Wdescent_Wcruise = 1
+range = 1100 * 1852  # metres   # convert 1100 nautical miles to metres
+cruise_mach = 0.5
+sound_speed = 309.696  # m/s  at FL250
+cruise_speed = cruise_mach * sound_speed
+SFC_cruise_power = 0.063/1000000  # kg/Ws  # Typical value of 0.07 for turbo prop from historical data with 10% improvement
+efficiency_turboprop = 0.8  # From Raymer
+SFC_cruise = (SFC_cruise_power * cruise_speed) / efficiency_turboprop  # kg/Ns # Converted to turbojet equivalent
+L_Dcruise = L_Dmax
+
+Wcruise_climb = np.exp((-range*SFC_cruise*gravity)/(cruise_speed * L_Dcruise))
+
 
 ## Loiter fuel fraction Mustafa
+Wdescent_cruise = 1
+
 
 # Out
-Wloiter_Wdescent = 1
+endurance = 20 * 60  # s #Converted from minutes
+loiter_speed = 200 * 0.514  # m/s # Converted from knots
+SFC_loiter_power = 0.101/1000000  # kg/Ws  # Typical value for turbo prop from historical data Raymer. 0.08 given in slides
+efficiency_turboprop = 0.8  # From Raymer
+SFC_loiter = (SFC_loiter_power * loiter_speed) / efficiency_turboprop  # kg/Ns # Converted to turbojet equivalent
+L_Dloiter = 0.866 * L_Dmax
+Wloiter_Wdescent = np.exp((-endurance*SFC_loiter*gravity)/L_Dcruise)
 
-## Final fuel fraction Mustafa
+## Landing fuel fraction Mustafa
 
 # Out
-Wfinal_Wloiter = 1
+Wfinal_Wloiter = 0.995 # from historical data
 
 """ ## Contingency fuel fraction Jay        DON'T
                                             NEED
