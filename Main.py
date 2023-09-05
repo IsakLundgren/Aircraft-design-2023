@@ -37,7 +37,25 @@ L_Dmax = KLD * np.sqrt(A/Swet_Sref)
 
 # Read excel SFC data
 dfSFC = pd.read_excel('excel/SFC_prop.xlsx')
-plt.plot(dfSFC.loc[''])
+
+yearData = dfSFC.loc[:, 'year']
+SFCData = dfSFC.loc[:, 'SFC kg/Ws']
+
+# Create curvefit
+def mockFunction(year, a, b):
+    return a / (year ** b)
+
+# Create plot
+fig, ax = plt.subplots()
+
+ax.scatter(yearData, SFCData, c='red', label='Reference data')
+ax.set_title('SFC - year relation')
+ax.set_ylabel('SFC [kg W-1 s-1]')
+ax.set_xlabel('Year')
+
+figureDPI = 200
+fig.set_size_inches(8, 6)
+fig.savefig('img/SFCYearRelation.png', dpi=figureDPI)
 
 # Out
 SFC = 1
@@ -123,3 +141,6 @@ W_f_by_W_0 = 1
 
 # Out
 W_0 = (W_crew + W_payload) / (1 - W_e_by_W_0 - W_f_by_W_0)
+
+# Show the plots
+plt.show(block=True)
