@@ -12,6 +12,7 @@ import matplotlib.pyplot as plt
 
 passengerWeight = 105  # kg
 passengerCount = 90
+releaseYear = 2035  # BC
 
 ### Calculations
 
@@ -44,7 +45,7 @@ dfSFC = pd.read_excel('excel/SFC_prop.xlsx')
 yearData = dfSFC.loc[:, 'year']
 SFCData = dfSFC.loc[:, 'SFC kg/Ws']
 
-ax.scatter(yearData, SFCData, c='red', label='Reference data')
+ax.scatter(yearData, SFCData, c='b', label='Reference data')
 
 
 # Create curvefit
@@ -52,13 +53,19 @@ def mockFunction(year, a, b):
     return a / year + b
 
 
+# noinspection PyTupleAssignmentBalance
 param, param_cov = curve_fit(mockFunction, yearData, SFCData)
 interpYear = np.linspace(1940, 2050, 1000)
 interpSFC = param[0] / interpYear + param[1]
-ax.plot(interpYear, interpSFC, '--b', label='Interpolation line')
+ax.plot(interpYear, interpSFC, '--r', label='Interpolation line')
 
 
 # Find
+hydrogenSFCAdjustment = -1e-9  # TODO adjust
+SFC = param[0] / releaseYear + param[1] + hydrogenSFCAdjustment
+ax.scatter([releaseYear], [SFC],
+           s=plt.rcParams['lines.markersize'] ** 2 * 2,
+           c='k', marker='x', label='Model SFC (adjusted)')
 
 # Plot settings
 ax.set_title('SFC - year relation')
@@ -72,17 +79,12 @@ figureDPI = 200
 fig.set_size_inches(8, 6)
 fig.savefig('img/SFCYearRelation.png', dpi=figureDPI)
 
-# Out
-SFC = 1
-
 ## Empty weight fraction Isak
 
 # In
-# Wcrew = 1
-# Wpayload = 1
 Wf_W0 = 0.3
-a = 0.92  # This needs adjustment
-c = -0.05  # This needs adjustment
+a = 0.92  # TODO This needs adjustment
+c = -0.05  # TODO This needs adjustment
 We_W0initialGuess = 0.6  # From lecture 1
 
 
