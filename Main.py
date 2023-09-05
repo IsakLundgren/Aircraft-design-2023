@@ -9,7 +9,8 @@ import matplotlib.pyplot as plt
 
 passengerWeight = 105 # kg
 passengerCount = 90
-gravity = 9.8  # m/s
+gravity = 9.82
+
 ### Calculations
 
 ## Crew and payload weight calculation Isak
@@ -86,35 +87,61 @@ Wloiter_Wdescent = np.exp((-endurance*SFC_loiter*gravity)/L_Dcruise)
 # Out
 Wfinal_Wloiter = 0.995 # from historical data
 
-## Contingency fuel fraction Jay
+""" ## Contingency fuel fraction Jay        DON'T
+                                            NEED
+# Out                                       THESE
+Wcont_Wfinal = 1                            SINCE       
+                                            THESE
+## Trapped fuel fraction Jay                ARE CONSIDERED IN
+                                            1.06 as (1%+5%) IN
+# Out                                       W_f_by_W_0 EQUATION
+Wtrapped_Wcont = 1 """                      
+
+## Diversion fuel fraction - Climb Jay
 
 # Out
-Wcont_Wfinal = 1
+Wdiv_climb = 0.985
 
-## Trapped fuel fraction Jay
+## Diversion fuel fraction - Cruise Jay
+# In
+R = 1   
+SFC_cruise = 1
+cruise_speed = 1
+L_Dcruise = 1
 
 # Out
-Wtrapped_Wcont = 1
+Wdiv_cruise = np.exp(((-R) * SFC_cruise) * gravity / (cruise_speed * L_Dcruise))
 
-## Diversion fuel fraction Jay
+## Diversion fuel fraction - Descent Jay
 
 # Out
-Wdiv_Wtrapped = 1
+Wdiv_descent = 1
+
+## Diversion fuel fraction TOTAL - Descent Jay
+# In
+Wdiv_climb = 1
+Wdiv_cruise = 1
+Wdiv_descent = 1
+
+# Out
+Wdiv_final = Wdiv_climb * Wdiv_cruise * Wdiv_descent
 
 ## Fuel weight fraction Jay
 
 # In
+Wfinal_W0 = Wclimb_Winit * Wcruise_Wclimb * Wdescent_Wcruise * Wloiter_Wdescent * \
+            Wfinal_Wloiter * Wdiv_final
 
 # Out
-W_f_by_W_0 = 1
+Wf_W0 = 1.06 * (1-Wfinal_W0)
 
 ## Take off weight Jay
 
 # In
-W_crew = 1
-W_payload = 1
-W_e_by_W_0 = 1
-W_f_by_W_0 = 1
+Wcrew = 1
+Wpayload = 1
+We_W0 = 1
+Wf_W0 = 1
 
 # Out
-W_0 = (W_crew + W_payload) / (1 - W_e_by_W_0 - W_f_by_W_0)
+W_0 = (Wcrew + Wpayload) / (1 - We_W0 - Wf_W0)
