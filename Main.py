@@ -85,7 +85,7 @@ fig.savefig('img/SFCYearRelation.png', dpi=figureDPI)
 Wf_W0 = 0.3
 a = 0.92  # TODO This needs adjustment
 c = -0.05  # TODO This needs adjustment
-We_W0initialGuess = 0.6  # From lecture 1
+We_W0initialGuess = 0.6 * np.ones(1)  # From lecture 1
 
 
 def We_frac_equation(We_W0_inner):
@@ -94,12 +94,12 @@ def We_frac_equation(We_W0_inner):
 
 # Out
 We_W0 = float(fsolve(We_frac_equation, We_W0initialGuess))
-print(We_W0)
+# print(We_W0)
 
 ## Initial fuel fraction Isak
 
 # Out
-Winit_W0 = 1
+Winit_W0 = 0.97  # In lecture 1
 
 ## Climb fuel fraction Mustafa
 
@@ -154,7 +154,6 @@ W_f_by_W_0 = 1
 W_crew = 1
 W_payload = 1
 W_e_by_W_0 = 1
-W_f_by_W_0 = 1
 
 # Out
 W_0 = (W_crew + W_payload) / (1 - W_e_by_W_0 - W_f_by_W_0)
