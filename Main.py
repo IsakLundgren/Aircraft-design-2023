@@ -97,7 +97,7 @@ fig.savefig('img/SFCYearRelation.png', dpi=figureDPI)
 ## Empty weight fraction Isak
 
 # In
-Wf_W0 = 0.3
+Wf_W0 = 0.3  # TODO Move this such that Wf_W0 is taken into account
 futureTechNudgeFactor = 0.96  # Design guess
 hydrogenTanksNudgeFactor = 1.12  # Design guess
 a = 0.92 * futureTechNudgeFactor * hydrogenTanksNudgeFactor
@@ -179,10 +179,10 @@ Wdiv_climb = 0.985
 
 ## Diversion fuel fraction - Cruise Jay
 # In
-R = 1
-SFC_cruise = 1
-cruise_speed = 1
-L_Dcruise = 1
+R = 1  # TODO Figure out what this is
+SFC_cruise = 1  # TODO Redirect SFC from Isaks part
+cruise_speed = 1  # TODO Set actual cruise speed
+L_Dcruise = 1  # TODO Redirect SFC from Isaks part
 
 # Out
 Wdiv_cruise = np.exp(((-R) * SFC_cruise) * gravity / (cruise_speed * L_Dcruise))
@@ -190,13 +190,13 @@ Wdiv_cruise = np.exp(((-R) * SFC_cruise) * gravity / (cruise_speed * L_Dcruise))
 ## Diversion fuel fraction - Descent Jay
 
 # Out
-Wdiv_descent = 1
+Wdiv_descent = 1  # TODO Find expression for this
 
 ## Diversion fuel fraction TOTAL - Descent Jay
 # In
-Wdiv_climb = 1
-Wdiv_cruise = 1
-Wdiv_descent = 1
+# Wdiv_climb = 1
+# Wdiv_cruise = 1
+# Wdiv_descent = 1
 
 # Out
 Wdiv_final = Wdiv_climb * Wdiv_cruise * Wdiv_descent
@@ -213,10 +213,10 @@ Wf_W0 = 1.06 * (1-Wfinal_W0)
 ## Take off weight Jay
 
 # In
-Wcrew = 1
-Wpayload = 1
-We_W0 = 1
-Wf_W0 = 1
+Wcrew = 1  # TODO redirect
+Wpayload = 1  # TODO redirect
+We_W0 = 1  # TODO redirect
+Wf_W0 = 1  # TODO redirect
 
 # Out
 W_0 = (Wcrew + Wpayload) / (1 - We_W0 - Wf_W0)
