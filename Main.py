@@ -97,7 +97,9 @@ fig.savefig('img/SFCYearRelation.png', dpi=figureDPI)
 
 # In
 Wf_W0 = 0.3
-a = 0.92  # TODO This needs adjustment
+futureTechNudgeFactor = 0.96  # Design guess
+hydrogenTanksNudgeFactor = 1.12  # Design guess
+a = 0.92 * futureTechNudgeFactor * hydrogenTanksNudgeFactor
 c = -0.05
 We_W0initialGuess = 0.6 * np.ones(1)  # From lecture 1
 
