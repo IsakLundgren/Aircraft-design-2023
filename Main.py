@@ -29,11 +29,14 @@ Wpayload = passengerCount * passengerWeight
 
 # In
 Swet_Sref = 5.95
+print(f'Swet/Sref: {Swet_Sref:.3g}.')
 A = 9.16  # Aspect ratio http://www.b737.org.uk/techspecsdetailed.htm
+print(f'Aspect ratio: {A:.3g}.')
 KLD = 12  # For "Turboprop"
 
 # Out
 L_Dmax = KLD * np.sqrt(A / Swet_Sref)
+print(f'L/D: {L_Dmax:.3g}.')
 
 ## Specific fuel consumption Isak
 
@@ -69,10 +72,11 @@ EDH = 8 * 10 ** 6 * 10 ** 3  # J m-3 https://www.energy.gov/eere/fuelcells/hydro
 rhoH = 71  # kg m-3
 
 SFCH_SFCJetA = (SEH ** 3 * EDH * rhoH) / (SEJetA ** 3 * EDJetA * rhoJetA)
-ax.text(1940, 0.52e-7, f'SFC_H by SFC_Jet A = {SFCH_SFCJetA}')
+ax.text(1940, 0.52e-7, f'SFC_H by SFC_Jet A = {SFCH_SFCJetA:.3g}')
 
 # Finalize SFC calculation
 SFC = (param[0] / releaseYear + param[1]) * SFCH_SFCJetA
+print(f'SFC: {SFC * 10**6:.3g} mg/(Ws).')
 ax.scatter([releaseYear], [SFC],
            s=plt.rcParams['lines.markersize'] ** 2 * 2,
            c='k', marker='x', label='Model SFC (adjusted)')
@@ -104,7 +108,7 @@ def We_frac_equation(We_W0_inner):
 
 # Out
 We_W0 = float(fsolve(We_frac_equation, We_W0initialGuess))
-# print(We_W0)
+print(f'OEW/MTOW: {We_W0}')
 
 ## Initial fuel fraction Isak
 
