@@ -48,7 +48,7 @@ dfSFC = pd.read_excel('excel/SFC_prop.xlsx')
 yearData = dfSFC.loc[:, 'year']
 SFCData = dfSFC.loc[:, 'SFC kg/Ws']
 
-ax.scatter(yearData, SFCData, c='b', label='Reference data')
+ax.scatter(yearData, SFCData * 10 ** 6, c='b', label='Reference data')
 
 
 # Create curvefit
@@ -60,7 +60,7 @@ def mockFunction(year, numerator, term):
 param, param_cov = curve_fit(mockFunction, yearData, SFCData)
 interpYear = np.linspace(1940, 2050, 1000)
 interpSFC = param[0] / interpYear + param[1]
-ax.plot(interpYear, interpSFC, '--r', label='Interpolation line')
+ax.plot(interpYear, interpSFC * 10 ** 6, '--r', label='Interpolation line')
 
 # Find sfcH_sfcjetA
 # Jet A info from https://en.wikipedia.org/wiki/Jet_fuel
@@ -72,18 +72,18 @@ EDH = 8 * 10 ** 6 * 10 ** 3  # J m-3 https://www.energy.gov/eere/fuelcells/hydro
 rhoH = 71  # kg m-3
 
 SFCH_SFCJetA = (SEH ** 3 * EDH * rhoH) / (SEJetA ** 3 * EDJetA * rhoJetA)
-ax.text(1940, 0.52e-7, f'SFC_H by SFC_Jet A = {SFCH_SFCJetA:.3g}')
+ax.text(1941, 0.52e-7 * 10 ** 6, f'SFC_H by SFC_Jet A = {SFCH_SFCJetA:.3g}')
 
 # Finalize SFC calculation
 SFC = (param[0] / releaseYear + param[1]) * SFCH_SFCJetA
 print(f'SFC: {SFC * 10**6:.3g} mg/(Ws).')
-ax.scatter([releaseYear], [SFC],
+ax.scatter([releaseYear], [SFC * 10 ** 6],
            s=plt.rcParams['lines.markersize'] ** 2 * 2,
            c='k', marker='x', label='Model SFC (adjusted)')
 
 # Plot settings
 ax.set_title('SFC - year relation')
-ax.set_ylabel('SFC [kg W-1 s-1]')
+ax.set_ylabel('SFC [mg W-1 s-1]')
 ax.set_xlabel('Year')
 ax.grid()
 ax.legend()
@@ -98,7 +98,7 @@ fig.savefig('img/SFCYearRelation.png', dpi=figureDPI)
 # In
 Wf_W0 = 0.3
 a = 0.92  # TODO This needs adjustment
-c = -0.05  # TODO This needs adjustment
+c = -0.05
 We_W0initialGuess = 0.6 * np.ones(1)  # From lecture 1
 
 
@@ -108,7 +108,7 @@ def We_frac_equation(We_W0_inner):
 
 # Out
 We_W0 = float(fsolve(We_frac_equation, We_W0initialGuess))
-print(f'OEW/MTOW: {We_W0}')
+print(f'OEW/MTOW: {We_W0:.3g}')
 
 ## Initial fuel fraction Isak
 
