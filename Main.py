@@ -94,25 +94,6 @@ figureDPI = 200
 fig.set_size_inches(8, 6)
 fig.savefig('img/SFCYearRelation.png', dpi=figureDPI)
 
-## Empty weight fraction Isak
-
-# In
-Wf_W0 = 0.3  # TODO Move this such that Wf_W0 is taken into account
-futureTechNudgeFactor = 0.96  # Design guess
-hydrogenTanksNudgeFactor = 1.12  # Design guess
-a = 0.92 * futureTechNudgeFactor * hydrogenTanksNudgeFactor
-c = -0.05
-We_W0initialGuess = 0.6 * np.ones(1)  # From lecture 1
-
-
-def We_frac_equation(We_W0_inner):
-    return a * ((Wcrew + Wpayload) / (1 - Wf_W0 - We_W0_inner)) ** c - We_W0_inner
-
-
-# Out
-We_W0 = float(fsolve(We_frac_equation, We_W0initialGuess))
-print(f'OEW/MTOW: {We_W0:.3g}')
-
 ## Initial fuel fraction Isak
 
 # Out
@@ -180,9 +161,9 @@ Wdiv_climb = 0.985
 ## Diversion fuel fraction - Cruise Jay
 # In
 R = 1  # TODO Figure out what this is
-SFC_cruise = 1  # TODO Redirect SFC from Isaks part
+SFC_cruise = SFC  # TODO Might need some sort of ratio to this
 cruise_speed = 1  # TODO Set actual cruise speed
-L_Dcruise = 1  # TODO Redirect SFC from Isaks part
+L_Dcruise = L_Dmax  # TODO Might need some sort of ratio to this
 
 # Out
 Wdiv_cruise = np.exp(((-R) * SFC_cruise) * gravity / (cruise_speed * L_Dcruise))
@@ -210,16 +191,29 @@ Wfinal_W0 = Wclimb_Winit * Wcruise_Wclimb * Wdescent_Wcruise * Wloiter_Wdescent 
 # Out
 Wf_W0 = 1.06 * (1-Wfinal_W0)
 
-## Take off weight Jay
+## Empty weight fraction Isak
 
 # In
-Wcrew = 1  # TODO redirect
-Wpayload = 1  # TODO redirect
-We_W0 = 1  # TODO redirect
-Wf_W0 = 1  # TODO redirect
+futureTechNudgeFactor = 0.96  # Design guess
+hydrogenTanksNudgeFactor = 1.12  # Design guess
+a = 0.92 * futureTechNudgeFactor * hydrogenTanksNudgeFactor
+c = -0.05
+We_W0initialGuess = 0.6 * np.ones(1)  # From lecture 1
+
+
+def We_frac_equation(We_W0_inner):
+    return a * ((Wcrew + Wpayload) / (1 - Wf_W0 - We_W0_inner)) ** c - We_W0_inner
+
 
 # Out
-W_0 = (Wcrew + Wpayload) / (1 - We_W0 - Wf_W0)
+We_W0 = float(fsolve(We_frac_equation, We_W0initialGuess))
+print(f'OEW/MTOW: {We_W0:.3g}')
+
+## Take off weight Jay
+
+# Out
+W0 = (Wcrew + Wpayload) / (1 - We_W0 - Wf_W0)
+print(f'MTOW: {W0 * 10 ** -3:.3g} tonnes.')
 
 # Show the plots
 plt.show(block=True)
