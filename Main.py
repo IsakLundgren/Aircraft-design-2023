@@ -59,10 +59,20 @@ interpYear = np.linspace(1940, 2050, 1000)
 interpSFC = param[0] / interpYear + param[1]
 ax.plot(interpYear, interpSFC, '--r', label='Interpolation line')
 
+# Find sfcH_sfcjetA
+# Jet A info from https://en.wikipedia.org/wiki/Jet_fuel
+SEJetA = 43.15 * 10 ** 6  # J kg-1
+EDJetA = 34.7 * 10 ** 6 * 10 ** 3  # J m-3
+rhoJetA = 0.804 * 10 ** 3 # kg m-3
+SEH = 142 * 10 ** 6  # J kg-1 https://www.alakai.com/hydrogen-details
+EDH = 8 * 10 ** 6 * 10 ** 3  # J m-3 https://www.energy.gov/eere/fuelcells/hydrogen-storage
+rhoH = 71  # kg m-3
 
-# Find
-hydrogenSFCAdjustment = -0.05  # TODO adjust
-SFC = (param[0] / releaseYear + param[1]) * (1 + hydrogenSFCAdjustment)
+SFCH_SFCJetA = (SEH ** 3 * EDH * rhoH) / (SEJetA ** 3 * EDJetA * rhoJetA)
+ax.text(1940, 0.52e-7, f'SFC_H by SFC_Jet A = {SFCH_SFCJetA}')
+
+# Finalize SFC calculation
+SFC = (param[0] / releaseYear + param[1]) * SFCH_SFCJetA
 ax.scatter([releaseYear], [SFC],
            s=plt.rcParams['lines.markersize'] ** 2 * 2,
            c='k', marker='x', label='Model SFC (adjusted)')
