@@ -67,7 +67,7 @@ ax.plot(interpYear, interpSFC * 10 ** 6, '--r', label='Interpolation line')
 # Jet A info from https://en.wikipedia.org/wiki/Jet_fuel
 SEJetA = 43.15 * 10 ** 6  # J kg-1
 EDJetA = 34.7 * 10 ** 6 * 10 ** 3  # J m-3
-rhoJetA = 0.804 * 10 ** 3 # kg m-3
+rhoJetA = 0.804 * 10 ** 3  # kg m-3
 SEH = 142 * 10 ** 6  # J kg-1 https://www.alakai.com/hydrogen-details
 EDH = 8 * 10 ** 6 * 10 ** 3  # J m-3 https://www.energy.gov/eere/fuelcells/hydrogen-storage
 rhoH = 71  # kg m-3
@@ -110,19 +110,20 @@ Winit_W0 = 0.97  # In lecture 1
 # Wcruise_Wclimb = 1
 
 Wclimb_Winit = 0.985  # From historical data
+
 ## Cruise fuel fraction Mustafa. The cruise fraction includes the descent part as mentioned in Raymer for initial sizing
 
 # Out
-range = 1100 * 1852  # metres   # convert 1100 nautical miles to metres
+rangeAircraft = 1100 * 1852  # metres   # convert 1100 nautical miles to metres
 cruise_mach = 0.5
 sound_speed = 309.696  # m/s  at FL250
 cruise_speed = cruise_mach * sound_speed
-SFC_cruise_power = 0.063/1000000  # kg/Ws  # Typical value of 0.07 for turbo prop from historical data with 10% improvement
+SFC_cruise_power = 0.063/1000000  # kg/Ws Typical value of 0.07 for turboprop from historical data with 10% improvement
 efficiency_turboprop = 0.8  # From Raymer
 SFC_cruise = (SFC_cruise_power * cruise_speed) / efficiency_turboprop  # kg/Ns # Converted to turbojet equivalent
 L_Dcruise = L_Dmax
 
-Wcruise_Wclimb = np.exp((-range*SFC_cruise*gravity)/(cruise_speed * L_Dcruise))
+Wcruise_Wclimb = np.exp((-rangeAircraft*SFC_cruise*gravity)/(cruise_speed * L_Dcruise))
 
 
 ## Loiter fuel fraction Mustafa
@@ -132,7 +133,7 @@ Wdescent_Wcruise = 1
 # Out
 endurance = 20 * 60  # s #Converted from minutes
 loiter_speed = 200 * 0.514  # m/s # Converted from knots
-SFC_loiter_power = 0.101/1000000  # kg/Ws  # Typical value for turbo prop from historical data Raymer. 0.08 given in slides
+SFC_loiter_power = 0.101/1000000  # kg/Ws Typical value for turboprop from historical data Raymer. 0.08 given in slides
 efficiency_turboprop = 0.8  # From Raymer
 SFC_loiter = (SFC_loiter_power * loiter_speed) / efficiency_turboprop  # kg/Ns # Converted to turbojet equivalent
 L_Dloiter = 0.866 * L_Dmax
@@ -141,7 +142,7 @@ Wloiter_Wdescent = np.exp((-endurance*SFC_loiter*gravity)/L_Dcruise)
 ## Final fuel fraction Mustafa
 
 # Out
-Wfinal_Wloiter = 0.995 # from historical data
+Wfinal_Wloiter = 0.995  # from historical data
 
 """ ## Contingency fuel fraction Jay        DON'T
                                             NEED
