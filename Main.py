@@ -145,7 +145,7 @@ Wcruise_Wclimb = np.exp((-range*SFC_cruise*gravity)/(cruise_speed * L_Dcruise))
 
 
 ## Loiter fuel fraction Mustafa
-Wdescent_cruise = 1
+Wdescent_Wcruise = 1
 
 
 # Out
