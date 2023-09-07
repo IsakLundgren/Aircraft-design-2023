@@ -5,12 +5,7 @@ from scipy.optimize import curve_fit
 import matplotlib.pyplot as plt
 import warnings
 
-def fxn():
-    warnings.warn("deprecated", DeprecationWarning)
-
-with warnings.catch_warnings():
-    warnings.simplefilter("ignore")
-    fxn()
+warnings.filterwarnings("ignore")
 
 # Important notes:
 # Camel case for all parameters, underscore means fraction
@@ -37,9 +32,9 @@ Wpayload = passengerCount * passengerWeight
 ## Lift to drag ratio Isak
 
 # In
-Swet_Sref = 5.95
+Swet_Sref = 6.1  # Provided as a suggestion for ATR-72, "Aircraft Design Studies Based on the ATR 72", https://www.fzt.haw-hamburg.de/pers/Scholz/arbeiten/TextNita.pdf
 print(f'Swet/Sref: {Swet_Sref:.3g}.')
-A = 12 # 9.16  # Aspect ratio http://www.b737.org.uk/techspecsdetailed.htm
+A = 12  # Aspect ratio https://www.rocketroute.com/aircraft/atr-72-212, https://en.wikipedia.org/wiki/ATR_72
 print(f'Aspect ratio: {A:.3g}.')
 KLD = 12  # For "Turboprop"
 
@@ -128,7 +123,7 @@ sound_speed = 309.696  # m/s  at FL250
 cruise_speed = cruise_mach * sound_speed
 efficiency_turboprop = 0.8  # From Raymer
 SFC_cruise = (SFC_power * cruise_speed) / efficiency_turboprop  # kg/Ns # Converted to turbojet equivalent
-print(f'SFC: {SFC_cruise * 10**6:.3g} mg/Ns')
+print(f'SFC: {SFC_cruise * 10**6:.3g} mg/Ns.')
 L_Dcruise = L_Dmax
 
 Wcruise_Wclimb = np.exp((-rangeAircraft*SFC_cruise*gravity)/(cruise_speed * L_Dcruise))
@@ -181,6 +176,7 @@ Wfinal_W0 = Wclimb_Winit * Wcruise_Wclimb * Wdescent_Wcruise * Wloiter_Wdescent 
 
 # Out
 Wf_W0 = 1.06 * (1-Wfinal_W0)
+print(f'FUEL/MTOW: {Wf_W0:.3g}.')
 
 ## Empty weight fraction Isak
 
@@ -198,7 +194,7 @@ def We_frac_equation(We_W0_inner):
 
 # Out
 We_W0 = float(fsolve(We_frac_equation, We_W0initialGuess))
-print(f'OEW/MTOW: {We_W0:.3g}')
+print(f'OEW/MTOW: {We_W0:.3g}.')
 
 ## Take off weight Jay
 
@@ -208,3 +204,8 @@ print(f'MTOW: {W0 * 10 ** -3:.3g} tonnes.')
 
 # Show the plots
 plt.show(block=True)
+
+## Additional deliverables
+
+Wf = W0 * Wf_W0
+print(f'Wf')
