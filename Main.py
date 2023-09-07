@@ -153,22 +153,13 @@ Wloiter_Wdescent = np.exp((-endurance*SFC_loiter*gravity)/L_Dcruise)
 # Out
 Wfinal_Wloiter = 0.995  # from historical data
 
-""" ## Contingency fuel fraction Jay        DON'T
-                                            NEED
-# Out                                       THESE
-Wcont_Wfinal = 1                            SINCE       
-                                            THESE
-## Trapped fuel fraction Jay                ARE CONSIDERED IN
-                                            1.06 as (1%+5%) IN
-# Out                                       W_f_by_W_0 EQUATION
-Wtrapped_Wcont = 1 """
-
 ## Diversion fuel fraction - Climb Jay
 
 # Out
 WdivClimb_Wfinal = 0.985
 
 ## Diversion fuel fraction - Cruise Jay
+# Assumption: diversion takes place in FL250, M = 0.5, same as cruise conditions
 # In
 L_Dcruise = L_Dmax 
 rangeDiversion = 100 * 1852  #m
@@ -198,7 +189,7 @@ futureTechNudgeFactor = 0.96  # Design guess
 hydrogenTanksNudgeFactor = 1.12  # Design guess
 a = 0.92 * futureTechNudgeFactor * hydrogenTanksNudgeFactor
 c = -0.05
-We_W0initialGuess = 0.6 * np.ones(1)  # From lecture 1
+We_W0initialGuess = 0.6  # From lecture 1
 
 
 def We_frac_equation(We_W0_inner):
