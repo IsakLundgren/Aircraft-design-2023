@@ -37,7 +37,7 @@ Wpayload = passengerCount * passengerWeight
 ## Lift to drag ratio Isak
 
 # In
-Swet_Sref = 5.95
+Swet_Sref = 6.1
 print(f'Swet/Sref: {Swet_Sref:.3g}.')
 A = 12 # 9.16  # Aspect ratio http://www.b737.org.uk/techspecsdetailed.htm
 print(f'Aspect ratio: {A:.3g}.')
