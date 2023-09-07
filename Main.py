@@ -36,11 +36,12 @@ Swet_Sref = 6.1  # Provided as a suggestion for ATR-72, "Aircraft Design Studies
 print(f'Swet/Sref: {Swet_Sref:.3g}.')
 A = 12  # Aspect ratio https://www.rocketroute.com/aircraft/atr-72-212, https://en.wikipedia.org/wiki/ATR_72
 print(f'Aspect ratio: {A:.3g}.')
-KLD = 12  # For "Turboprop"
+KLD = 12  # For "Turboprop", Raymer 2018
 
 # Out
 L_Dmax = KLD * np.sqrt(A / Swet_Sref)
-print(f'L/D: {L_Dmax:.3g}.')
+print(f'L/D max: {L_Dmax:.3g}.')
+print(f'L/D cruise: {L_Dmax:.3g}.')
 
 ## Specific fuel consumption Isak
 
@@ -73,7 +74,7 @@ EDJetA = 34.7 * 10 ** 6 * 10 ** 3  # J m-3
 rhoJetA = 0.804 * 10 ** 3  # kg m-3
 SEH = 142 * 10 ** 6  # J kg-1 https://www.alakai.com/hydrogen-details
 EDH = 8 * 10 ** 6 * 10 ** 3  # J m-3 https://www.energy.gov/eere/fuelcells/hydrogen-storage
-rhoH = 71  # kg m-3
+rhoH = 0.071 * 10 ** 3 # kg m-3
 
 SFCH_SFCJetA = (SEH ** 3 * EDH * rhoH) / (SEJetA ** 3 * EDJetA * rhoJetA)
 ax.text(1941, 0.52e-7 * 10 ** 6, f'SFC_H by SFC_Jet A = {SFCH_SFCJetA:.3g}')
@@ -141,6 +142,7 @@ SFC_loiter_power = 0.101/1000000  # kg/Ws Typical value for turboprop from histo
 efficiency_turboprop = 0.8  # From Raymer
 SFC_loiter = (SFC_loiter_power * loiter_speed) / efficiency_turboprop  # kg/Ns # Converted to turbojet equivalent
 L_Dloiter = 0.866 * L_Dmax
+print(f'L/D loiter: {L_Dloiter:.3g}.')
 Wloiter_Wdescent = np.exp((-endurance*SFC_loiter*gravity)/L_Dcruise)
 
 ## Final fuel fraction Mustafa
@@ -207,5 +209,10 @@ plt.show(block=True)
 
 ## Additional deliverables
 
+# Fuel weight
 Wf = W0 * Wf_W0
-print(f'Wf')
+print(f'FUEL WEIGHT: {Wf * 10 ** -3:.3g} tonnes.')
+
+# Tank volume
+tankVolume = Wf / rhoH
+print(f'Tank volume: {tankVolume:.3g} m3.')
