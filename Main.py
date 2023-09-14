@@ -72,12 +72,13 @@ ax.plot(interpYear, interpSFC * 10 ** 6, '--r', label='Interpolation line')
 SEJetA = 43.15 * 10 ** 6  # J kg-1
 EDJetA = 34.7 * 10 ** 6 * 10 ** 3  # J m-3
 rhoJetA = 0.804 * 10 ** 3  # kg m-3
+LHVJetA = 43.39  # MJ kg-1 https://iashulf.memberclicks.net/technical-q-a-fuels
 SEH = 142 * 10 ** 6  # J kg-1 https://www.alakai.com/hydrogen-details
 EDH = 8 * 10 ** 6 * 10 ** 3  # J m-3 https://www.energy.gov/eere/fuelcells/hydrogen-storage
 rhoH = 0.071 * 10 ** 3 # kg m-3
+LHVH = 119.96  # MJ kg-1 https://h2tools.org/hyarc/calculator-tools/lower-and-higher-heating-values-fuels
 
-SFCH_SFCJetA = (SEH ** 3 * EDH * rhoH) / (SEJetA ** 3 * EDJetA * rhoJetA)
-ax.text(1941, 0.52e-7 * 10 ** 6, f'SFC_H by SFC_Jet A = {SFCH_SFCJetA:.3g}')
+SFCH_SFCJetA = LHVJetA / LHVH
 
 # Finalize SFC calculation
 SFC_power = (param[0] / releaseYear + param[1]) * SFCH_SFCJetA
@@ -204,9 +205,6 @@ print(f'OEW/MTOW: {We_W0:.3g}.')
 W0 = (Wcrew + Wpayload) / (1 - We_W0 - Wf_W0)
 print(f'MTOW: {W0 * 10 ** -3:.3g} tonnes.')
 
-# Show the plots
-plt.show(block=True)
-
 ## Additional deliverables
 
 # Fuel weight
@@ -216,3 +214,6 @@ print(f'FUEL WEIGHT: {Wf * 10 ** -3:.3g} tonnes.')
 # Tank volume
 tankVolume = Wf / rhoH
 print(f'Tank volume: {tankVolume:.3g} m3.')
+
+# Show the plots
+plt.show(block=True)
