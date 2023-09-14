@@ -95,6 +95,9 @@ fig.savefig('img/SFCYearRelation.png', dpi=figureDPI)
 
 ## Initial fuel fraction Isak
 
+# Hydrogen adjustments for fuel fractions where SFC is not used
+HAdjust = (1-LHVJetA/LHVH)  # TODO Include this into fuel fractions somehow
+
 Winit_W0 = 0.97  # In lecture 1
 Wclimb_Winit = 0.985  # From historical data
 
@@ -151,14 +154,17 @@ print(f'FUEL/MTOW: {Wf_W0:.3g}.')
 
 ## Empty weight fraction Isak
 futureTechNudgeFactor = 0.96  # Design guess
-hydrogenTanksNudgeFactor = 1.12  # Design guess
-a = 0.92 * futureTechNudgeFactor * hydrogenTanksNudgeFactor
+a = 0.92 * futureTechNudgeFactor
 c = -0.05
+Gi = 0.35 # Gravimetric index, added from https://chalmers.instructure.com/courses/25325/pages/project-kick-off?module_item_id=387491
+
 We_W0initialGuess = 0.6  # From lecture 1
 
 
 def We_frac_equation(We_W0_inner):
-    return a * ((Wcrew + Wpayload) / (1 - Wf_W0 - We_W0_inner)) ** c - We_W0_inner
+    Weorg_W0 = a * ((Wcrew + Wpayload) / (1 - Wf_W0 - We_W0_inner)) ** c
+    Wt_W0 = Wf_W0 * ((1-Gi)/Gi)
+    return Weorg_W0 + Wt_W0 - We_W0_inner
 
 
 We_W0 = float(fsolve(We_frac_equation, We_W0initialGuess))
