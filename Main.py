@@ -95,11 +95,14 @@ fig.savefig('img/SFCYearRelation.png', dpi=figureDPI)
 
 ## Initial fuel fraction Isak
 
-# Hydrogen adjustments for fuel fractions where SFC is not used
-HAdjust = (1-LHVJetA/LHVH)  # TODO Include this into fuel fractions somehow
 
-Winit_W0 = 0.97  # In lecture 1
-Wclimb_Winit = 0.985  # From historical data
+# Hydrogen adjustments for fuel fractions where SFC is not used
+def convFuelFrac(W1_W0, LHVA_LHVB):
+    return 1 - LHVA_LHVB * (1 - W1_W0)
+
+
+Winit_W0 = convFuelFrac(0.97, SFCH_SFCJetA)  # In lecture 1
+Wclimb_Winit = convFuelFrac(0.985, SFCH_SFCJetA)  # From historical data
 
 ## Cruise fuel fraction Mustafa. The cruise fraction includes the descent part as mentioned in Raymer for initial sizing
 rangeAircraft = 1100 * 1852  # metres   # convert 1100 nautical miles to metres
@@ -128,10 +131,10 @@ print(f'L/D loiter: {L_Dloiter:.3g}.')
 Wloiter_Wdescent = np.exp((-endurance*SFC_loiter*gravity)/L_Dcruise)
 
 ## Final fuel fraction Mustafa
-Wfinal_Wloiter = 0.995  # from historical data
+Wfinal_Wloiter = convFuelFrac(0.995, SFCH_SFCJetA) # from historical data
 
 ## Diversion fuel fraction - Climb Jay
-WdivClimb_Wfinal = 0.985
+WdivClimb_Wfinal = convFuelFrac(0.985, SFCH_SFCJetA)
 
 ## Diversion fuel fraction - Cruise Jay
 # Assumption: diversion takes place in FL250, M = 0.5, same as cruise conditions
@@ -146,17 +149,28 @@ WdivCruise_WdivClimb = np.exp(((-rangeDiversion) * SFC_cruise) * gravity / (crui
 WdivDescent_WdivCruise = 1
 
 ## Fuel weight fraction Jay
-Wfinal_W0 = Wclimb_Winit * Wcruise_Wclimb * Wdescent_Wcruise * Wloiter_Wdescent * \
+Wfinal_W0 = Winit_W0 * Wclimb_Winit * Wcruise_Wclimb * Wdescent_Wcruise * Wloiter_Wdescent * \
             Wfinal_Wloiter * WdivClimb_Wfinal * WdivCruise_WdivClimb * WdivDescent_WdivCruise
 
 Wf_W0 = 1.06 * (1-Wfinal_W0)
-print(f'FUEL/MTOW: {Wf_W0:.3g}.')
+print(f'\nSizing fractions:')
+print(f'Winit_W0: {Winit_W0:.3g}')
+print(f'Wclimb_Winit: {Wclimb_Winit:.3g}')
+print(f'Wcruise_Wclimb: {Wcruise_Wclimb:.3g}')
+print(f'Wdescent_Wcruise: {Wdescent_Wcruise:.3g}')
+print(f'Wloiter_Wdescent: {Wloiter_Wdescent:.3g}')
+print(f'Wfinal_Wloiter: {Wfinal_Wloiter:.3g}')
+print(f'WdivClimb_Wfinal: {WdivClimb_Wfinal:.3g}')
+print(f'WdivCruise_WdivClimb: {WdivCruise_WdivClimb:.3g}')
+print(f'WdivDescent_WdivCruise: {WdivDescent_WdivCruise:.3g}')
+print(f'\nFUEL/MTOW: {Wf_W0:.3g}.')
 
 ## Empty weight fraction Isak
 futureTechNudgeFactor = 0.96  # Design guess
 a = 0.92 * futureTechNudgeFactor
 c = -0.05
-Gi = 0.35 # Gravimetric index, added from https://chalmers.instructure.com/courses/25325/pages/project-kick-off?module_item_id=387491
+Gi = 0.35  # Gravimetric index,
+# added from https://chalmers.instructure.com/courses/25325/pages/project-kick-off?module_item_id=387491
 
 We_W0initialGuess = 0.6  # From lecture 1
 
