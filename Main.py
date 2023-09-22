@@ -198,5 +198,40 @@ print(f'FUEL WEIGHT: {Wf * 10 ** -3:.3g} tonnes.')
 tankVolume = Wf / rhoH
 print(f'Tank volume: {tankVolume:.3g} m3.')
 
+# Assume cylindrical tanks, give tank radius and heights
+tankAspectRatio = 20  # h / r = TAR Design guess
+tankRadius = np.power((tankVolume / 2) / (np.pi * tankAspectRatio), 1/3)
+tankHeight = tankRadius * tankAspectRatio
+print(f'Tank aspect ratio: {tankAspectRatio:.3g}.')
+print(f'Tank radius: {tankRadius:.3g} m.')
+print(f'Tank height: {tankHeight:.3g} m.')
+
+## Calculate thrust to weight ratio
+etaPropeller = 0.8  # Aircraft design book p. 518
+
+# First do statistical approach
+a = 0.016  # Lect 5 twin turboprop
+C = 0.5  # Lect 5 twin turboprop
+P_W0statistical = a * cruise_speed ** C
+T_W0statistical = etaPropeller / cruise_speed * P_W0statistical / gravity
+
+# Now do thrust matching approach, Aircraft design book p. 122
+T_Wcruise = 1 / L_Dcruise
+P_Wcruise = gravity * cruise_speed / etaPropeller * T_Wcruise
+Wcruise_W0 = Wcruise_Wclimb * Wclimb_Winit * Winit_W0
+T_W0thrustmatch = T_W0statistical  # TODO Fix this
+
+# Take the maximum
+T_W0takeoff = np.max([T_W0statistical, T_W0thrustmatch])
+
+# Find the propeller size by statistical approximations
+Pcruise = P_Wcruise * Wcruise_W0 * W0
+Ptakeoff_Pcruise = 1  # TODO Find this
+Ptakeoff = Pcruise * Ptakeoff_Pcruise
+Kp = 0.52  # Lecture 5 three blades
+Dpropeller = Kp * (Ptakeoff / 1000) ** (1/4)
+print(f'Propeller diameter: {Dpropeller} m.')
+
+
 # Show the plots
 plt.show(block=True)
