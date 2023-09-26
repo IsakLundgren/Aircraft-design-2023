@@ -21,6 +21,8 @@ passengerWeight = 105  # kg
 passengerCount = 90
 releaseYear = 2035  # BC
 gravity = 9.82
+Vapproach = 119 * m_s_knot  # m s-1
+rhoSL = 1.225  # kg m-3
 
 ### Calculations
 
@@ -264,6 +266,18 @@ DpropellerCompressibility = np.sqrt((Mtip * sound_speed) ** 2 - cruise_speed ** 
 # Take the maximum
 Dpropeller = max(DpropellerStatistical, DpropellerCompressibility)  # Probably do not want the diameter to reduce, pick the max
 print(f'\nPropeller diameter: {Dpropeller:.3g} m.')
+
+## Wing area
+
+# Calculate wing loading for stall
+Vstall = Vapproach / 1.3  # Raymer p.132 for commercial aircraft
+Vtakeoff = Vstall * 1.10  # Lect 5
+CLmax = 2.6  # Assume double slotted flap, 0 sweep angle from Raymer p.127
+W_Sstall = 1 / (2 * gravity) * rhoSL * Vstall ** 2 * CLmax
+Wloiter_W0 = Wloiter_Wdescent * Wdescent_Wcruise * Wcruise_Wclimb * Wclimb_Winit * Winit_W0  # Assume stall occurs in the loiter part of the mission
+W_Stakeoff = W_Sstall / Wloiter_W0
+S = W0 / W_Stakeoff
+print(f'Wing reference area: {S:.3g} m^2.')
 
 
 # Show the plots
