@@ -11,6 +11,10 @@ warnings.filterwarnings("ignore")
 # Camel case for all parameters, underscore means fraction
 # No capital for next word if prev word is 1 letter long
 
+### Conversion parameters
+m_feet = 1 / 3.28084
+m_s_knot = 1 / 1.944
+
 ### Predefined parameters
 
 passengerWeight = 105  # kg
@@ -207,30 +211,59 @@ print(f'Tank radius: {tankRadius:.3g} m.')
 print(f'Tank height: {tankHeight:.3g} m.')
 
 ## Calculate thrust to weight ratio
-etaPropeller = 0.8  # Aircraft design book p. 518
+
+# Cruise
+T_Wcruise = 1 / L_Dcruise
+
+# Climb
+takeoffToCruiseTime = 15.5 * 60  # s
+takeoffAlt = 1500 * m_feet  # m
+cruiseAlt = 250 * 100 * m_feet  # m
+VclimbVertical = (cruiseAlt - takeoffAlt) / takeoffToCruiseTime  # m s-1
+ATRClimbVertical = 1335 * m_feet / 60  # m s-1 http://www.atr-aircraft.com/wp-content/uploads/2020/07/Factsheets_-_ATR_72-600.pdf
+ATRClimbSpeed = 170 * m_s_knot  # m s-1
+climbSpeedRatio = ATRClimbVertical / ATRClimbSpeed
+Vclimb = VclimbVertical / climbSpeedRatio
+print(f'\nClimb speed: {Vclimb:.3g} m/s.')
+L_Dclimb = L_Dcruise  # Could not find data, assume equal
+T_Wclimb = 1 / L_Dclimb + climbSpeedRatio
 
 # First do statistical approach
+etaPropeller = 0.8  # Aircraft design book p. 518
 a = 0.016  # Lect 5 twin turboprop
 C = 0.5  # Lect 5 twin turboprop
-P_W0statistical = a * cruise_speed ** C
-T_W0statistical = etaPropeller / cruise_speed * P_W0statistical / gravity
+P_W0statistical = a * cruise_speed ** C * 1000  # W kg-1
+T_W0statistical = etaPropeller / cruise_speed * P_W0statistical / gravity  # -
 
 # Now do thrust matching approach, Aircraft design book p. 122
-T_Wcruise = 1 / L_Dcruise
-P_Wcruise = gravity * cruise_speed / etaPropeller * T_Wcruise
+P_Wcruise = gravity * cruise_speed / etaPropeller * T_Wcruise  # W kg-1
 Wcruise_W0 = Wcruise_Wclimb * Wclimb_Winit * Winit_W0
-T_W0thrustmatch = T_W0statistical  # TODO Fix this
+eshpRatio = (60 + 80) * 1/100
+P_W0thrustmatch = P_Wcruise * 1 / eshpRatio
+T_W0thrustmatch = etaPropeller / cruise_speed * P_W0thrustmatch / gravity
 
 # Take the maximum
 T_W0takeoff = np.max([T_W0statistical, T_W0thrustmatch])
 
+# Print thrust to weight ratios
+print(f'\nTake-off thrust to weight ratio: {T_W0takeoff * 100:.3g}%.')
+print(f'Climb thrust to weight ratio: {T_Wclimb * 100:.3g}%.')
+print(f'Cruise thrust to weight ratio: {T_Wcruise * 100:.3g}%.')
+
 # Find the propeller size by statistical approximations
 Pcruise = P_Wcruise * Wcruise_W0 * W0
-Ptakeoff_Pcruise = 1  # TODO Find this
-Ptakeoff = Pcruise * Ptakeoff_Pcruise
+Ptakeoff = Pcruise * 1 / eshpRatio
 Kp = 0.52  # Lecture 5 three blades
-Dpropeller = Kp * (Ptakeoff / 1000) ** (1/4)
-print(f'Propeller diameter: {Dpropeller} m.')
+DpropellerStatistical = Kp * (Ptakeoff / 1000) ** (1/4)
+
+# Find the propeller size by compressibility effects
+rpsPropeller = 1200 / 60  # Taken from ATR 72 https://www.naval-technology.com/projects/atr-72-asw-anti-submarine-warfare-aircraft/
+Mtip = 0.97
+DpropellerCompressibility = np.sqrt((Mtip * sound_speed) ** 2 - cruise_speed ** 2) / (np.pi * rpsPropeller)
+
+# Take the maximum
+Dpropeller = max(DpropellerStatistical, DpropellerCompressibility)  # Probably do not want the diameter to reduce, pick the max
+print(f'\nPropeller diameter: {Dpropeller:.3g} m.')
 
 
 # Show the plots
