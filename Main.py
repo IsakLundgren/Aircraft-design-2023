@@ -287,6 +287,44 @@ W_Stakeoff = W_Sstall / Wloiter_W0
 S = W0 / W_Stakeoff
 print(f'Wing reference area: {S:.3g} m^2.')
 
+## Calculate span, taper-ratio, wing stuff
+taper_ratio = 0.4       #Raymer - For most unswept wings
+Dihedral_angle = 2      #General value to assume and begin with design
+t_c = 0.15              #Thickness to chord ratio, From historical plots
+c_HT = 0.9              #Constant, Raymer 160
+c_VT = 0.08              #Constant, Raymer 160
+dist_to_VT = 1
+dist_to_HT = 1
 
-# Show the plots
+# Aileron sizing - 50-90% of wingspan
+#                - 20% of wing chord
+# Rudders & Elevators - 0-90% of wingspan
+#                     - 36% elevtor chord length, 46% rudder chord length
+
+# Solving for Wing span
+span = np.sqrt(A * S)
+print('Span = ', span[0])
+print('Half wing span =', span[0]/2)
+
+def eqn2(p):
+    root_chord, tip_chord = p
+    return (0.4*root_chord - tip_chord, \
+            (2*S/span) - root_chord - tip_chord)
+root_chord, tip_chord =  fsolve(eqn2, (1, 1))
+print('Root chord = ', root_chord, '\nTip chord = ', tip_chord)
+
+mean_chord = 0.666 * root_chord * ((1 + taper_ratio + taper_ratio**2)/(1 + taper_ratio))
+print('Mean aerodynamic Chord =', mean_chord)
+
+loc_mean_chord = (span/6) * ((1+2*taper_ratio)/(1+taper_ratio))
+print('Location of Mean Aerodynamic Chord =', loc_mean_chord[0])
+
+# Vertical tail
+VT_area = c_VT * span * S / dist_to_VT
+
+# Horizontal tail
+HT_area = c_HT * mean_chord * S / dist_to_HT
+
+
+### Show the plots
 plt.show(block=True)
