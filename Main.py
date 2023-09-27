@@ -254,6 +254,7 @@ print(f'Cruise thrust to weight ratio: {T_Wcruise * 100:.3g}%.')
 
 # Find the propeller size by statistical approximations
 Pcruise = P_Wcruise * Wcruise_W0 * W0
+print(f'Power_cruise: {Pcruise / 1000:.3g} kW.')
 Ptakeoff = Pcruise * 1 / eshpRatio
 Kp = 0.52  # Lecture 5 three blades
 DpropellerStatistical = Kp * (Ptakeoff / 1000) ** (1/4)
