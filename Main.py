@@ -303,8 +303,8 @@ dist_to_HT = 1
 
 # Solving for Wing span
 span = np.sqrt(A * S)
-print('Span = ', span[0])
-print('Half wing span =', span[0]/2)
+print('Span = ', span)
+print('Half wing span =', span/2)
 
 def eqn2(p):
     root_chord, tip_chord = p
@@ -317,7 +317,7 @@ mean_chord = 0.666 * root_chord * ((1 + taper_ratio + taper_ratio**2)/(1 + taper
 print('Mean aerodynamic Chord =', mean_chord)
 
 loc_mean_chord = (span/6) * ((1+2*taper_ratio)/(1+taper_ratio))
-print('Location of Mean Aerodynamic Chord =', loc_mean_chord[0])
+print('Location of Mean Aerodynamic Chord =', loc_mean_chord)
 
 # Vertical tail
 VT_area = c_VT * span * S / dist_to_VT
