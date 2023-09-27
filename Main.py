@@ -14,6 +14,8 @@ warnings.filterwarnings("ignore")
 ### Conversion parameters
 m_feet = 1 / 3.28084
 m_s_knot = 1 / 1.944
+W_hp = 1 / 0.00134102
+kg_lbs = 1 / 2.20462
 
 ### Predefined parameters
 
@@ -279,29 +281,50 @@ print(f'\nPropeller diameter: {Dpropeller:.3g} m.')
 # Calculate wing loading for stall
 Vstall = Vapproach / 1.3  # Raymer p.132 for commercial aircraft
 Vtakeoff = Vstall * 1.10  # Lect 5
-CLmax = 3  # Assume double slotted flap, 0 sweep angle from Raymer p.127
+CLmax = 2.6  # Assume double slotted flap, 0 sweep angle from Raymer p.127
 W_Sstall = 1 / (2 * gravity) * rhoSL * Vstall ** 2 * CLmax
 Wloiter_W0 = Wloiter_Wdescent * Wdescent_Wcruise * Wcruise_Wclimb * Wclimb_Winit * Winit_W0  # Assume stall occurs in the loiter part of the mission
 W_Stakeoff = W_Sstall / Wloiter_W0
-S = W0 / W_Stakeoff
-print(f'Wing reference area: {S:.3g} m^2.')
+SStallApproach = W0 / W_Stakeoff
 
 # Calculate take-off wing-loading
 TOFL = 1400  # m
+TakeoffParameter = 420  # Empirical observation from lecture 5 slide 21
+CLTakeoff = CLmax/1.21  # Equation from lecture 5 slide 21
+P_W0hplbs = P_W0statistical / W_hp * kg_lbs
+W_StakeoffLbs_ft2 = TakeoffParameter * CLTakeoff * P_W0hplbs
+W_Stakeoff = W_StakeoffLbs_ft2 * kg_lbs / (m_feet ** 2)
+STakeoffApproach = W0 / W_Stakeoff
 
 # Calculate landing distance
 LFL = 1350  # m
 
+# Finalize wing area
+S = min(SStallApproach, STakeoffApproach)
+print(f'Wing reference area: {S:.3g} m^2.')
+
 ## Constraint diagram
 
 fig, ax1 = plt.subplots()
-ax1.set_xlabel('W/S')
-ax1.set_ylabel('T/W')
+ax1.set_xlabel('W/S [kg m-2]')
+ax1.set_ylabel('T/W [-]')
 ax1.grid()
 
 # Stall line
 ax1.vlines(x=W_Sstall, color='r', linestyles='--', label='Stall', ymin=0, ymax=1)
 
+
+# Takeoff line
+def WStoTW(WSinternal):
+    PWhp_lbs = WSinternal * 1/(TakeoffParameter * CLTakeoff)
+    PWW_kg = PWhp_lbs * W_hp / kg_lbs
+    TW = etaPropeller / cruise_speed * PWW_kg / gravity
+    return TW
+
+
+W_SList = np.linspace(0, 600, 1000)
+T_W0takeoffList = WStoTW(W_SList)
+ax1.plot(W_SList, T_W0takeoffList, 'g-', label='Take-off')
 
 ## Calculate span, taper-ratio, wing stuff
 taper_ratio = 0.4       #Raymer - For most unswept wings
