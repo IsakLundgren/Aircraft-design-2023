@@ -273,7 +273,7 @@ print(f'\nPropeller diameter: {Dpropeller:.3g} m.')
 # Calculate wing loading for stall
 Vstall = Vapproach / 1.3  # Raymer p.132 for commercial aircraft
 Vtakeoff = Vstall * 1.10  # Lect 5
-CLmax = 2.6  # Assume double slotted flap, 0 sweep angle from Raymer p.127
+CLmax = 3  # Assume double slotted flap, 0 sweep angle from Raymer p.127
 W_Sstall = 1 / (2 * gravity) * rhoSL * Vstall ** 2 * CLmax
 Wloiter_W0 = Wloiter_Wdescent * Wdescent_Wcruise * Wcruise_Wclimb * Wclimb_Winit * Winit_W0  # Assume stall occurs in the loiter part of the mission
 W_Stakeoff = W_Sstall / Wloiter_W0
