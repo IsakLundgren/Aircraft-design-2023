@@ -274,7 +274,6 @@ DpropellerCompressibility = np.sqrt((Mtip * sound_speed) ** 2 - cruise_speed ** 
 # Take the maximum
 Dpropeller = max(DpropellerStatistical, DpropellerCompressibility)  # Probably do not want the diameter to reduce, pick the max
 print(f'\nPropeller diameter: {Dpropeller:.3g} m.')
-
 ## Wing area
 
 # Calculate wing loading for stall
@@ -286,6 +285,23 @@ Wloiter_W0 = Wloiter_Wdescent * Wdescent_Wcruise * Wcruise_Wclimb * Wclimb_Winit
 W_Stakeoff = W_Sstall / Wloiter_W0
 S = W0 / W_Stakeoff
 print(f'Wing reference area: {S:.3g} m^2.')
+
+# Calculate take-off wing-loading
+TOFL = 1400  # m
+
+# Calculate landing distance
+LFL = 1350  # m
+
+## Constraint diagram
+
+fig, ax1 = plt.subplots()
+ax1.set_xlabel('W/S')
+ax1.set_ylabel('T/W')
+ax1.grid()
+
+# Stall line
+ax1.vlines(x=W_Sstall, color='r', linestyles='--', label='Stall', ymin=0, ymax=1)
+
 
 ## Calculate span, taper-ratio, wing stuff
 taper_ratio = 0.4       #Raymer - For most unswept wings
