@@ -214,7 +214,12 @@ print(f'Tank aspect ratio: {tankAspectRatio:.3g}.')
 print(f'Tank radius: {tankRadius:.3g} m.')
 print(f'Tank height: {tankHeight:.3g} m.')
 
-## Calculate thrust to weight ratio
+
+## Wing loading and thrust to weight ratio
+
+# Initialize list of canidates
+W_SList = np.linspace(0, 600, 1000)
+
 
 # Cruise
 T_Wcruise = 1 / L_Dcruise
@@ -229,8 +234,15 @@ ATRClimbSpeed = 170 * m_s_knot  # m s-1
 climbSpeedRatio = ATRClimbVertical / ATRClimbSpeed
 Vclimb = VclimbVertical / climbSpeedRatio
 print(f'\nClimb speed: {Vclimb:.3g} m/s.')
-L_Dclimb = L_Dcruise  # Could not find data, assume equal
-T_Wclimb = 1 / L_Dclimb + climbSpeedRatio
+
+Wclimb_W0 = Wclimb_Winit * Winit_W0
+Wclimb_Sclimb = W_SList / Wclimb_W0
+
+dynPresClimb = rhoSL * Vclimb ** 2 / 2
+CD0 = 0.03  # Raymer p.135
+osw = 0.8  # Oswald span efficiency factor, Raymer p.135
+T_Wclimb = dynPresClimb * CD0 / Wclimb_Sclimb + Wclimb_Sclimb * 1 / (dynPresClimb * np.pi * A * osw) + climbSpeedRatio
+T_W0climb = T_Wclimb * Wclimb_W0
 
 # First do statistical approach
 etaPropeller = 0.8  # Aircraft design book p. 518
@@ -249,45 +261,13 @@ T_W0thrustmatch = etaPropeller / cruise_speed * P_W0thrustmatch / gravity
 # Take the maximum
 T_W0takeoff = np.max([T_W0statistical, T_W0thrustmatch])
 
-# Print thrust to weight ratios
-print(f'\nTake-off thrust to weight ratio: {T_W0takeoff * 100:.3g}%.')
-print(f'Climb thrust to weight ratio: {T_Wclimb * 100:.3g}%.')
-print(f'Cruise thrust to weight ratio: {T_Wcruise * 100:.3g}%.')
-
-# Find the propeller size by statistical approximations
-Pcruise = P_Wcruise * Wcruise_W0 * W0
-Ptakeoff = Pcruise * 1 / eshpRatio
-Kp = 0.52  # Lecture 5 three blades
-DpropellerStatistical = Kp * (Ptakeoff / 1000) ** (1/4)
-
-# Print required powers and thrusts
-Wclimb = Wclimb_Winit * Winit_W0 * W0
-Wcruise = Wcruise_W0 * W0
-print(f'\nCruise power: {Pcruise / 1000000:.3g} MW.')
-print(f'Take-off thrust: {T_W0takeoff * W0 / 1000:.3g} kN.')
-print(f'Climb thrust: {T_Wclimb * Wclimb / 1000:.3g} kN.')
-print(f'Cruise thrust: {T_Wcruise * Wcruise / 1000:.3g} kN.')
-
-# Find the propeller size by compressibility effects
-rpsPropeller = 1200 / 60  # Taken from ATR 72 https://www.naval-technology.com/projects/atr-72-asw-anti-submarine-warfare-aircraft/
-Mtip = 0.97
-DpropellerCompressibility = np.sqrt((Mtip * sound_speed) ** 2 - cruise_speed ** 2) / (np.pi * rpsPropeller)
-
-# Take the maximum
-Dpropeller = max(DpropellerStatistical, DpropellerCompressibility)  # Probably do not want the diameter to reduce, pick the max
-print(f'\nPropeller diameter: {Dpropeller:.3g} m.')
-
-## Wing loading and thrust to weight ratio
-
-# Initialize list of canidates
-W_SList = np.linspace(0, 600, 1000)
-
 # Calculate wing loading for stall
 Vstall = Vapproach / 1.3  # Raymer p.132 for commercial aircraft
 Vtakeoff = Vstall * 1.10  # Lect 5
 CLmax = 2.6  # Assume double slotted flap, 0 sweep angle from Raymer p.127
 W_Sstall = 1 / (2 * gravity) * rhoSL * Vstall ** 2 * CLmax
-Wloiter_W0 = Wloiter_Wdescent * Wdescent_Wcruise * Wcruise_Wclimb * Wclimb_Winit * Winit_W0  # Assume stall occurs in the loiter part of the mission
+# Assume stall occurs in the loiter part of the mission
+Wloiter_W0 = Wloiter_Wdescent * Wdescent_Wcruise * Wcruise_Wclimb * Wclimb_Winit * Winit_W0
 W_StakeoffStall = W_Sstall / Wloiter_W0
 
 # Calculate take-off wing-loading
@@ -321,6 +301,8 @@ fig, ax1 = plt.subplots()
 ax1.set_xlabel('W/S [kg m-2]')
 ax1.set_ylabel('T/W [-]')
 ax1.grid()
+ax1.set_xlim([W_SList[0], W_SList[-1]])
+ax1.set_ylim([0, 1])
 
 # Stall line
 ax1.vlines(x=W_StakeoffStall, color='r', linestyles='--', label='Stall', ymin=0, ymax=1)
@@ -332,6 +314,9 @@ ax1.vlines(x=W_Slanding, color='k', linestyles='--', label='Landing', ymin=0, ym
 ax1.plot(W_SList, T_W0takeoff, 'g-', label='Take-off')
 
 # Climb line
+ax1.plot(W_SList, T_W0climb, 'b-', label='Climb')
+
+# Cruise line
 ax1.axhline(y=T_Wcruise, color='y', label='Cruise', xmin=W_SList[0], xmax=W_SList[-1])
 
 ax1.legend()
@@ -340,7 +325,25 @@ ax1.legend()
 S = 66  # TODO Has to be set after defined constraint diagram
 print(f'Wing reference area: {S:.3g} m^2.')
 
+## Calculate propeller size
+
+# Find the propeller size by statistical approximations
+Pcruise = P_Wcruise * Wcruise_W0 * W0
+Ptakeoff = Pcruise * 1 / eshpRatio
+Kp = 0.52  # Lecture 5 three blades
+DpropellerStatistical = Kp * (Ptakeoff / 1000) ** (1/4)
+
+# Find the propeller size by compressibility effects
+rpsPropeller = 1200 / 60  # Taken from ATR 72 https://www.naval-technology.com/projects/atr-72-asw-anti-submarine-warfare-aircraft/
+Mtip = 0.97
+DpropellerCompressibility = np.sqrt((Mtip * sound_speed) ** 2 - cruise_speed ** 2) / (np.pi * rpsPropeller)
+
+# Take the maximum
+Dpropeller = max(DpropellerStatistical, DpropellerCompressibility)  # Probably do not want the diameter to reduce, pick the max
+print(f'\nPropeller diameter: {Dpropeller:.3g} m.')
+
 ## Calculate span, taper-ratio, wing stuff
+
 taper_ratio = 0.4       #Raymer - For most unswept wings
 Dihedral_angle = 2      #General value to assume and begin with design
 t_c = 0.15              #Thickness to chord ratio, From historical plots
