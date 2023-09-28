@@ -239,7 +239,7 @@ Wclimb_W0 = Wclimb_Winit * Winit_W0
 Wclimb_Sclimb = W_SList / Wclimb_W0
 
 dynPresClimb = rhoSL * Vclimb ** 2 / 2
-CD0 = 0.03  # Raymer p.135
+CD0 = 0.02  # Raymer p.135
 osw = 0.8  # Oswald span efficiency factor, Raymer p.135
 T_Wclimb = dynPresClimb * CD0 / Wclimb_Sclimb + Wclimb_Sclimb * 1 / (dynPresClimb * np.pi * A * osw) + climbSpeedRatio
 T_W0climb = T_Wclimb * Wclimb_W0
@@ -298,6 +298,7 @@ W_Slanding = (LFLReal - OCD) / 4.84 * CLmax / Wfinal_W0
 ## Constraint diagram
 
 fig, ax1 = plt.subplots()
+ax1.set_title('Constraint diagram')
 ax1.set_xlabel('W/S [kg m-2]')
 ax1.set_ylabel('T/W [-]')
 ax1.grid()
@@ -321,9 +322,17 @@ ax1.axhline(y=T_Wcruise, color='y', label='Cruise', xmin=W_SList[0], xmax=W_SLis
 
 ax1.legend()
 
-# Finalize wing area
-S = 66  # TODO Has to be set after defined constraint diagram
+# Finalize wing area and total thrust/power
+W0_S = W_Slanding
+i = np.argmin(np.abs(np.array(W_SList)-W0_S))
+T_W0 = np.interp(W0_S, W_SList[i:i+2], T_W0climb[i:i+2])
+
+S = W0 / W0_S
+T = T_W0 * W0 * gravity
+print(f'\nTake-off wing loading: {W0_S:.3g} kg/m^2.')
+print(f'Take-off thrust-to-weight ratio: {T_W0 * 100:.3g}%.')
 print(f'Wing reference area: {S:.3g} m^2.')
+print(f'Max thrust: {T / 1000:.3g} kN.')
 
 ## Calculate propeller size
 
