@@ -322,17 +322,19 @@ ax1.axhline(y=T_Wcruise, color='y', label='Cruise', xmin=W_SList[0], xmax=W_SLis
 
 ax1.legend()
 
-# Finalize wing area and total thrust/power
+# Finalize wing area, thrust/weight, thrust and power
 W0_S = W_Slanding
 i = np.argmin(np.abs(np.array(W_SList)-W0_S))
 T_W0 = np.interp(W0_S, W_SList[i:i+2], T_W0climb[i:i+2])
 
 S = W0 / W0_S
 T = T_W0 * W0 * gravity
+P = T * Vclimb / etaPropeller
 print(f'\nTake-off wing loading: {W0_S:.3g} kg/m^2.')
 print(f'Take-off thrust-to-weight ratio: {T_W0 * 100:.3g}%.')
 print(f'Wing reference area: {S:.3g} m^2.')
 print(f'Max thrust: {T / 1000:.3g} kN.')
+print(f'Max power (WARNING: BAD): {P / 1000000:.3g} MW.')
 
 ## Calculate propeller size
 
