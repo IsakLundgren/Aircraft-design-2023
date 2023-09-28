@@ -77,7 +77,7 @@ rhoJetA = 0.804 * 10 ** 3  # kg m-3
 LHVJetA = 0.0828 * 43.37 + 0.1328 * 43.38 + 0.7525 * 43.39 + 0.0318 * 43.246  # MJ kg-1
 SEH = 142 * 10 ** 6  # J kg-1 https://www.alakai.com/hydrogen-details
 EDH = 8 * 10 ** 6 * 10 ** 3  # J m-3 https://www.energy.gov/eere/fuelcells/hydrogen-storage
-rhoH = 0.071 * 10 ** 3 # kg m-3
+rhoH = 0.071 * 10 ** 3  # kg m-3
 LHVH = 119.96  # MJ kg-1 https://h2tools.org/hyarc/calculator-tools/lower-and-higher-heating-values-fuels
 
 SFCH_SFCJetA = LHVJetA / LHVH
@@ -246,9 +246,9 @@ T_W0climb = T_Wclimb * Wclimb_W0
 
 # First do statistical approach
 etaPropeller = 0.8  # Aircraft design book p. 518
-a = 0.016  # Lect 5 twin turboprop
+a_tw = 0.016  # Lect 5 twin turboprop
 C = 0.5  # Lect 5 twin turboprop
-P_W0statistical = a * cruise_speed ** C * 1000  # W kg-1
+P_W0statistical = a_tw * cruise_speed ** C * 1000  # W kg-1
 T_W0statistical = etaPropeller / cruise_speed * P_W0statistical / gravity  # -
 
 # Now do thrust matching approach, Aircraft design book p. 122
@@ -259,7 +259,7 @@ P_W0thrustmatch = P_Wcruise * 1 / eshpRatio
 T_W0thrustmatch = etaPropeller / cruise_speed * P_W0thrustmatch / gravity
 
 # Take the maximum
-T_W0takeoff = np.max([T_W0statistical, T_W0thrustmatch])
+# T_W0takeoff = np.max([T_W0statistical, T_W0thrustmatch])
 
 # Calculate wing loading for stall
 Vstall = Vapproach / 1.3  # Raymer p.132 for commercial aircraft
@@ -363,11 +363,11 @@ print(f'\nPropeller diameter: {Dpropeller:.3g} m.')
 
 ## Calculate span, taper-ratio, wing stuff
 
-taper_ratio = 0.4       #Raymer - For most unswept wings
-Dihedral_angle = 2      #General value to assume and begin with design
-t_c = 0.15              #Thickness to chord ratio, From historical plots
-c_HT = 0.9              #Constant, Raymer 160
-c_VT = 0.08              #Constant, Raymer 160
+taper_ratio = 0.4       # Raymer - For most unswept wings
+Dihedral_angle = 2      # General value to assume and begin with design
+t_c = 0.15              # Thickness to chord ratio, From historical plots
+c_HT = 0.9              # Constant, Raymer 160
+c_VT = 0.08             # Constant, Raymer 160
 dist_to_VT = 1
 dist_to_HT = 1
 
@@ -381,11 +381,13 @@ span = np.sqrt(A * S)
 print(f'Span: {span:.3g} m.')
 print(f'Half wing span: {span/2:.3g} m.')
 
+
 def eqn2(p):
     root_chord, tip_chord = p
-    return (0.4*root_chord - tip_chord, \
-            (2*S/span) - root_chord - tip_chord)
-root_chord, tip_chord =  fsolve(eqn2, (1, 1))
+    return 0.4*root_chord - tip_chord, (2*S/span) - root_chord - tip_chord
+
+
+root_chord, tip_chord = fsolve(eqn2, (1, 1))
 print(f'Root chord: {root_chord:.3g} m.')
 print(f'Tip chord: {tip_chord:.3g} m.')
 
