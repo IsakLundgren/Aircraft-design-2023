@@ -322,6 +322,11 @@ ax1.axhline(y=T_Wcruise, color='y', label='Cruise', xmin=W_SList[0], xmax=W_SLis
 
 ax1.legend()
 
+# Save figure
+figureDPI = 200
+fig.set_size_inches(8, 6)
+fig.savefig('img/ConstraintDiagram.png', dpi=figureDPI)
+
 # Finalize wing area, thrust/weight, thrust and power
 W0_S = W_Slanding
 i = np.argmin(np.abs(np.array(W_SList)-W0_S))
