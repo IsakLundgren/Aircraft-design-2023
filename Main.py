@@ -320,13 +320,6 @@ ax1.plot(W_SList, T_W0climb, 'b-', label='Climb')
 # Cruise line
 ax1.axhline(y=T_Wcruise, color='y', label='Cruise', xmin=W_SList[0], xmax=W_SList[-1])
 
-ax1.legend()
-
-# Save figure
-figureDPI = 200
-fig.set_size_inches(8, 6)
-fig.savefig('img/ConstraintDiagram.png', dpi=figureDPI)
-
 # Finalize wing area, thrust/weight, thrust and power
 W0_S = W_Slanding
 i = np.argmin(np.abs(np.array(W_SList)-W0_S))
@@ -340,6 +333,16 @@ print(f'Take-off thrust-to-weight ratio: {T_W0 * 100:.3g}%.')
 print(f'Wing reference area: {S:.3g} m^2.')
 print(f'Max thrust: {T / 1000:.3g} kN.')
 print(f'Max power (WARNING: BAD): {P / 1000000:.3g} MW.')
+
+# Place design point in diagram
+ax1.scatter([W0_S], [T_W0], c='r', marker='o', label='Design point', zorder=2)
+
+ax1.legend()
+
+# Save figure
+figureDPI = 200
+fig.set_size_inches(8, 6)
+fig.savefig('img/ConstraintDiagram.png', dpi=figureDPI)
 
 ## Calculate propeller size
 
