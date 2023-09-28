@@ -293,10 +293,21 @@ W_StakeoffStall = W_Sstall / Wloiter_W0
 # Calculate take-off wing-loading
 TOFL = 1400  # m
 TakeoffParameter = 420  # Empirical observation from lecture 5 slide 21
-CLTakeoff = CLmax/1.21  # Equation from lecture 5 slide 21
-P_W0hplbs = P_W0statistical / W_hp * kg_lbs
-W_StakeoffLbs_ft2 = TakeoffParameter * CLTakeoff * P_W0hplbs
-W_Stakeoff = W_StakeoffLbs_ft2 * kg_lbs / (m_feet ** 2)
+CLTakeoff = CLmax / 1.21  # Equation from lecture 5 slide 21
+
+
+def WStoTW(WSinternal):
+    PWhp_lbs = WSinternal * 1/(TakeoffParameter * CLTakeoff)
+    PWW_kg = PWhp_lbs * W_hp / kg_lbs
+    TW = etaPropeller / cruise_speed * PWW_kg / gravity
+    return TW
+
+
+T_W0takeoff = WStoTW(W_SList)
+
+# P_W0hplbs = P_W0statistical / W_hp * kg_lbs
+# W_StakeoffLbs_ft2 = TakeoffParameter * CLTakeoff * P_W0hplbs
+# W_Stakeoff = W_StakeoffLbs_ft2 * kg_lbs / (m_feet ** 2)
 
 # Calculate landing distance wing-loading
 LFL = 1350  # m
@@ -317,16 +328,8 @@ ax1.vlines(x=W_StakeoffStall, color='r', linestyles='--', label='Stall', ymin=0,
 # Landing line
 ax1.vlines(x=W_Slanding, color='k', linestyles='--', label='Landing', ymin=0, ymax=1)
 
-# Takeoff line
-def WStoTW(WSinternal):
-    PWhp_lbs = WSinternal * 1/(TakeoffParameter * CLTakeoff)
-    PWW_kg = PWhp_lbs * W_hp / kg_lbs
-    TW = etaPropeller / cruise_speed * PWW_kg / gravity
-    return TW
-
-
-T_W0takeoffList = WStoTW(W_SList)
-ax1.plot(W_SList, T_W0takeoffList, 'g-', label='Take-off')
+# Take-off line
+ax1.plot(W_SList, T_W0takeoff, 'g-', label='Take-off')
 
 # Climb line
 ax1.axhline(y=T_Wcruise, color='y', label='Cruise', xmin=W_SList[0], xmax=W_SList[-1])
