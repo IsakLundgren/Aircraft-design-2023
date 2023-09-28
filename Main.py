@@ -139,7 +139,7 @@ print(f'L/D loiter: {L_Dloiter:.3g}.')
 Wloiter_Wdescent = np.exp((-endurance*SFC_loiter*gravity)/L_Dcruise)
 
 ## Final fuel fraction Mustafa
-Wfinal_Wloiter = convFuelFrac(0.995, SFCH_SFCJetA) # from historical data
+Wfinal_Wloiter = convFuelFrac(0.995, SFCH_SFCJetA)  # from historical data
 
 ## Diversion fuel fraction - Climb Jay
 WdivClimb_Wfinal = convFuelFrac(0.985, SFCH_SFCJetA)
@@ -276,7 +276,11 @@ DpropellerCompressibility = np.sqrt((Mtip * sound_speed) ** 2 - cruise_speed ** 
 # Take the maximum
 Dpropeller = max(DpropellerStatistical, DpropellerCompressibility)  # Probably do not want the diameter to reduce, pick the max
 print(f'\nPropeller diameter: {Dpropeller:.3g} m.')
-## Wing area
+
+## Wing loading and thrust to weight ratio
+
+# Initialize list of canidates
+W_SList = np.linspace(0, 600, 1000)
 
 # Calculate wing loading for stall
 Vstall = Vapproach / 1.3  # Raymer p.132 for commercial aircraft
@@ -284,8 +288,7 @@ Vtakeoff = Vstall * 1.10  # Lect 5
 CLmax = 2.6  # Assume double slotted flap, 0 sweep angle from Raymer p.127
 W_Sstall = 1 / (2 * gravity) * rhoSL * Vstall ** 2 * CLmax
 Wloiter_W0 = Wloiter_Wdescent * Wdescent_Wcruise * Wcruise_Wclimb * Wclimb_Winit * Winit_W0  # Assume stall occurs in the loiter part of the mission
-W_Stakeoff = W_Sstall / Wloiter_W0
-SStallApproach = W0 / W_Stakeoff
+W_StakeoffStall = W_Sstall / Wloiter_W0
 
 # Calculate take-off wing-loading
 TOFL = 1400  # m
@@ -294,14 +297,12 @@ CLTakeoff = CLmax/1.21  # Equation from lecture 5 slide 21
 P_W0hplbs = P_W0statistical / W_hp * kg_lbs
 W_StakeoffLbs_ft2 = TakeoffParameter * CLTakeoff * P_W0hplbs
 W_Stakeoff = W_StakeoffLbs_ft2 * kg_lbs / (m_feet ** 2)
-STakeoffApproach = W0 / W_Stakeoff
 
-# Calculate landing distance
+# Calculate landing distance wing-loading
 LFL = 1350  # m
-
-# Finalize wing area
-S = min(SStallApproach, STakeoffApproach)
-print(f'Wing reference area: {S:.3g} m^2.')
+LFLReal = LFL / 1.43  # for final length to be FAR25 cert
+OCD = 305  # m Obstacle clearing distance
+W_Slanding = (LFLReal - OCD) / 4.84 * CLmax / Wfinal_W0
 
 ## Constraint diagram
 
@@ -311,8 +312,10 @@ ax1.set_ylabel('T/W [-]')
 ax1.grid()
 
 # Stall line
-ax1.vlines(x=W_Sstall, color='r', linestyles='--', label='Stall', ymin=0, ymax=1)
+ax1.vlines(x=W_StakeoffStall, color='r', linestyles='--', label='Stall', ymin=0, ymax=1)
 
+# Landing line
+ax1.vlines(x=W_Slanding, color='k', linestyles='--', label='Landing', ymin=0, ymax=1)
 
 # Takeoff line
 def WStoTW(WSinternal):
@@ -322,9 +325,17 @@ def WStoTW(WSinternal):
     return TW
 
 
-W_SList = np.linspace(0, 600, 1000)
 T_W0takeoffList = WStoTW(W_SList)
 ax1.plot(W_SList, T_W0takeoffList, 'g-', label='Take-off')
+
+# Climb line
+ax1.axhline(y=T_Wcruise, color='y', label='Cruise', xmin=W_SList[0], xmax=W_SList[-1])
+
+ax1.legend()
+
+# Finalize wing area
+S = 66  # TODO Has to be set after defined constraint diagram
+print(f'Wing reference area: {S:.3g} m^2.')
 
 ## Calculate span, taper-ratio, wing stuff
 taper_ratio = 0.4       #Raymer - For most unswept wings
