@@ -299,7 +299,7 @@ W_Slanding = (LFLReal - OCD) / 4.84 * CLmax / Wfinal_W0
 
 fig, ax1 = plt.subplots()
 ax1.set_title('Constraint diagram')
-ax1.set_xlabel('W/S [N m-2]')
+ax1.set_xlabel('W/S [kg m-2]')
 ax1.set_ylabel('T/W [-]')
 ax1.grid()
 ax1.set_xlim([W_SList[0], W_SList[-1]])
