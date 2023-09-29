@@ -299,7 +299,7 @@ W_Slanding = (LFLReal - OCD) / 4.84 * CLmax / Wfinal_W0
 
 fig, ax1 = plt.subplots()
 ax1.set_title('Constraint diagram')
-ax1.set_xlabel('W/S [kg m-2]')
+ax1.set_xlabel('W/S [N m-2]')
 ax1.set_ylabel('T/W [-]')
 ax1.grid()
 ax1.set_xlim([W_SList[0], W_SList[-1]])
@@ -326,7 +326,7 @@ i = np.argmin(np.abs(np.array(W_SList)-W0_S))
 T_W0 = np.interp(W0_S, W_SList[i:i+2], T_W0climb[i:i+2])
 
 S = W0 / W0_S
-T = T_W0 * W0 * gravity
+T = T_W0 * W0
 P = T * Vclimb / etaPropeller
 print(f'\nTake-off wing loading: {W0_S:.3g} kg/m^2.')
 print(f'Take-off thrust-to-weight ratio: {T_W0 * 100:.3g}%.')
