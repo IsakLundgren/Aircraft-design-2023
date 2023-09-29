@@ -36,7 +36,7 @@ Wpayload = passengerCount * passengerWeight
 ## Lift to drag ratio Isak
 Swet_Sref = 6.1  # Provided as a suggestion for ATR-72, "Aircraft Design Studies Based on the ATR 72", https://www.fzt.haw-hamburg.de/pers/Scholz/arbeiten/TextNita.pdf
 print(f'Swet/Sref: {Swet_Sref:.3g}.')
-A = 12  # Aspect ratio https://www.rocketroute.com/aircraft/atr-72-212, https://en.wikipedia.org/wiki/ATR_72
+A = 10  # Aspect ratio https://www.rocketroute.com/aircraft/atr-72-212, https://en.wikipedia.org/wiki/ATR_72
 print(f'Aspect ratio: {A:.3g}.')
 KLD = 12  # For "Turboprop", Raymer 2018
 
@@ -264,7 +264,7 @@ T_W0thrustmatch = etaPropeller / cruise_speed * P_W0thrustmatch / gravity
 # Calculate wing loading for stall
 Vstall = Vapproach / 1.3  # Raymer p.132 for commercial aircraft
 Vtakeoff = Vstall * 1.10  # Lect 5
-CLmax = 2.6  # Assume double slotted flap, 0 sweep angle from Raymer p.127
+CLmax = 3  # Assume double slotted flap, 0 sweep angle from Raymer p.127
 W_Sstall = 1 / (2 * gravity) * rhoSL * Vstall ** 2 * CLmax
 # Assume stall occurs in the loiter part of the mission
 Wloiter_W0 = Wloiter_Wdescent * Wdescent_Wcruise * Wcruise_Wclimb * Wclimb_Winit * Winit_W0
