@@ -36,7 +36,7 @@ Wpayload = passengerCount * passengerWeight
 Swet_Sref = 6.1  # Provided as a suggestion for ATR-72,
 # "Aircraft Design Studies Based on the ATR 72", https://www.fzt.haw-hamburg.de/pers/Scholz/arbeiten/TextNita.pdf
 print(f'Swet/Sref: {Swet_Sref:.3g}.')
-A = 12  # Aspect ratio https://www.rocketroute.com/aircraft/atr-72-212, https://en.wikipedia.org/wiki/ATR_72
+A = 11.44  # Aspect ratio https://www.rocketroute.com/aircraft/atr-72-212, https://en.wikipedia.org/wiki/ATR_72
 print(f'Aspect ratio: {A:.3g}.')
 KLD = 12  # For "Turboprop", Raymer 2018
 
@@ -359,7 +359,7 @@ dist_to_HT = 1
 
 # Solving for Wing span
 span = np.sqrt(A * S)
-print(f'Span: {span:.3g} m.')
+print(f'Span: {span:.5g} m.')
 print(f'Half wing span: {span/2:.3g} m.')
 
 
