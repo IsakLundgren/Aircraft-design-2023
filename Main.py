@@ -109,13 +109,13 @@ Wclimb_Winit = convFuelFrac(0.985, SFCH_SFCJetA)  # From historical data
 rangeAircraft = 1100 * 1852  # metres   # convert 1100 nautical miles to metres
 cruise_mach = 0.5
 sound_speed = 309.696  # m/s  at FL250
-cruise_speed = cruise_mach * sound_speed
+Vcruise = cruise_mach * sound_speed
 etaPropeller = 0.8  # Aircraft design book p. 518
-SFC_cruise = (SFC_power * cruise_speed) / etaPropeller  # kg/Ns # Converted to turbojet equivalent
+SFC_cruise = (SFC_power * Vcruise) / etaPropeller  # kg/Ns # Converted to turbojet equivalent
 print(f'SFC: {SFC_cruise * 10**6:.3g} mg/Ns.')
 L_Dcruise = L_Dmax
 
-Wcruise_Wclimb = np.exp((-rangeAircraft*SFC_cruise*gravity)/(cruise_speed * L_Dcruise))
+Wcruise_Wclimb = np.exp((-rangeAircraft*SFC_cruise*gravity)/(Vcruise * L_Dcruise))
 
 
 ## Loiter fuel fraction Mustafa
@@ -142,7 +142,7 @@ WdivClimb_Wfinal = convFuelFrac(0.985, SFCH_SFCJetA)
 L_Dcruise = L_Dmax 
 rangeDiversion = 100 * 1852  # m
 
-WdivCruise_WdivClimb = np.exp(((-rangeDiversion) * SFC_cruise) * gravity / (cruise_speed * L_Dcruise))
+WdivCruise_WdivClimb = np.exp(((-rangeDiversion) * SFC_cruise) * gravity / (Vcruise * L_Dcruise))
 
 ## Diversion fuel fraction - Descent Jay
 
@@ -216,7 +216,20 @@ W_SList = np.linspace(0, 600, 1000)
 
 
 # Cruise
+
+# Statistical approach
+a_tw = 0.016  # Lect 5 twin turboprop
+C = 0.5  # Lect 5 twin turboprop
+P_W0statistical = a_tw * Vcruise ** C * 1000  # W kg-1
+
+# Thrust matching approach, Aircraft design book p. 122
 T_Wcruise = 1 / L_Dcruise
+P_Wcruise = Vcruise * gravity / etaPropeller * T_Wcruise
+Wcruise_W0 = Wcruise_Wclimb * Wclimb_Winit * Winit_W0
+eshpRatio = (60 + 80) * 1/100
+P_W0thrustmatch = P_Wcruise * 1 / eshpRatio * Wcruise_W0
+
+P_W0cruise = max([P_W0statistical, P_W0thrustmatch])
 
 # Climb
 takeoffToCruiseTime = 15.5 * 60  # s
@@ -239,22 +252,6 @@ osw = 0.8  # Oswald span efficiency factor, Raymer p.135
 T_Wclimb = dynPresClimb * CD0 / Wclimb_Sclimb + Wclimb_Sclimb * 1 / (dynPresClimb * np.pi * A * osw) + climbSpeedRatio
 T_W0climb = T_Wclimb * Wclimb_W0
 P_W0climb = Vclimb * gravity / etaPropeller * T_W0climb
-
-# First do statistical approach
-a_tw = 0.016  # Lect 5 twin turboprop
-C = 0.5  # Lect 5 twin turboprop
-P_W0statistical = a_tw * cruise_speed ** C * 1000  # W kg-1
-T_W0statistical = etaPropeller / cruise_speed * P_W0statistical / gravity  # -
-
-# Now do thrust matching approach, Aircraft design book p. 122
-P_Wcruise = gravity * cruise_speed / etaPropeller * T_Wcruise  # W kg-1
-Wcruise_W0 = Wcruise_Wclimb * Wclimb_Winit * Winit_W0
-eshpRatio = (60 + 80) * 1/100
-P_W0thrustmatch = P_Wcruise * 1 / eshpRatio
-T_W0thrustmatch = etaPropeller / cruise_speed * P_W0thrustmatch / gravity
-
-# Take the maximum
-# T_W0takeoff = np.max([T_W0statistical, T_W0thrustmatch])
 
 # Calculate wing loading for stall
 Vstall = Vapproach / 1.3  # Raymer p.132 for commercial aircraft
@@ -312,7 +309,7 @@ ax1.plot(W_SList, P_W0takeoff * 1e-3, 'g-', label='Take-off')
 ax1.plot(W_SList, P_W0climb * 1e-3, 'b-', label='Climb')
 
 # Cruise line
-ax1.axhline(y=T_Wcruise, color='y', label='Cruise', xmin=W_SList[0], xmax=W_SList[-1])
+ax1.axhline(y=P_W0cruise * 1e-3, color='y', label='Cruise', xmin=W_SList[0], xmax=W_SList[-1])
 
 # Finalize wing area, thrust/weight, thrust and power
 W0_S = W_Slanding
@@ -350,7 +347,7 @@ DpropellerStatistical = Kp * (Ptakeoff / 1000) ** (1/4)
 rpsPropeller = 1200 / 60  # Taken from ATR 72
 # https://www.naval-technology.com/projects/atr-72-asw-anti-submarine-warfare-aircraft/
 Mtip = 0.97
-DpropellerCompressibility = np.sqrt((Mtip * sound_speed) ** 2 - cruise_speed ** 2) / (np.pi * rpsPropeller)
+DpropellerCompressibility = np.sqrt((Mtip * sound_speed) ** 2 - Vcruise ** 2) / (np.pi * rpsPropeller)
 
 # Take the maximum
 Dpropeller = max(DpropellerStatistical, DpropellerCompressibility)  # Do not want the diameter to reduce, pick the max
@@ -383,7 +380,9 @@ def eqn2(p):
 
 
 # noinspection PyTypeChecker
-root_chord, tip_chord = fsolve(eqn2, (1, 1))
+result = fsolve(eqn2, (1, 1))
+root_chord = result[0]
+tip_chord = result[1]
 print(f'Root chord: {root_chord:.3g} m.')
 print(f'Tip chord: {tip_chord:.3g} m.')
 
