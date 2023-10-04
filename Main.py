@@ -1,7 +1,6 @@
 import numpy as np
 import pandas as pd
 from scipy.optimize import fsolve
-from scipy.optimize import curve_fit
 import matplotlib.pyplot as plt
 import warnings
 
@@ -36,7 +35,7 @@ Wpayload = passengerCount * passengerWeight
 ## Lift to drag ratio Isak
 Swet_Sref = 6.1  # Provided as a suggestion for ATR-72, "Aircraft Design Studies Based on the ATR 72", https://www.fzt.haw-hamburg.de/pers/Scholz/arbeiten/TextNita.pdf
 print(f'Swet/Sref: {Swet_Sref:.3g}.')
-A = 10  # Aspect ratio https://www.rocketroute.com/aircraft/atr-72-212, https://en.wikipedia.org/wiki/ATR_72
+A = 12  # Aspect ratio https://www.rocketroute.com/aircraft/atr-72-212, https://en.wikipedia.org/wiki/ATR_72
 print(f'Aspect ratio: {A:.3g}.')
 KLD = 12  # For "Turboprop", Raymer 2018
 
@@ -110,8 +109,8 @@ rangeAircraft = 1100 * 1852  # metres   # convert 1100 nautical miles to metres
 cruise_mach = 0.5
 sound_speed = 309.696  # m/s  at FL250
 cruise_speed = cruise_mach * sound_speed
-efficiency_turboprop = 0.8  # From Raymer
-SFC_cruise = (SFC_power * cruise_speed) / efficiency_turboprop  # kg/Ns # Converted to turbojet equivalent
+etaPropeller = 0.8  # Aircraft design book p. 518
+SFC_cruise = (SFC_power * cruise_speed) / etaPropeller  # kg/Ns # Converted to turbojet equivalent
 print(f'SFC: {SFC_cruise * 10**6:.3g} mg/Ns.')
 L_Dcruise = L_Dmax
 
@@ -124,9 +123,9 @@ Wdescent_Wcruise = 1
 
 endurance = 20 * 60  # s #Converted from minutes
 loiter_speed = 200 * 0.514  # m/s # Converted from knots
-SFC_loiter_power = 0.101/1000000  # kg/Ws Typical value for turboprop from historical data Raymer. 0.08 given in slides
-efficiency_turboprop = 0.8  # From Raymer
-SFC_loiter = (SFC_loiter_power * loiter_speed) / efficiency_turboprop  # kg/Ns # Converted to turbojet equivalent
+SFC_loiter_power = (
+    SFC_power * 0.101 / 0.085)  # kg/Ws Typical value for turboprop from historical data Raymer. 0.08 given in slides
+SFC_loiter = (SFC_loiter_power * loiter_speed) / etaPropeller  # kg/Ns # Converted to turbojet equivalent
 L_Dloiter = 0.866 * L_Dmax
 print(f'L/D loiter: {L_Dloiter:.3g}.')
 Wloiter_Wdescent = np.exp((-endurance*SFC_loiter*gravity)/L_Dcruise)
@@ -140,7 +139,7 @@ WdivClimb_Wfinal = convFuelFrac(0.985, SFCH_SFCJetA)
 ## Diversion fuel fraction - Cruise Jay
 # Assumption: diversion takes place in FL250, M = 0.5, same as cruise conditions
 L_Dcruise = L_Dmax 
-rangeDiversion = 100 * 1852  #m
+rangeDiversion = 100 * 1852  # m
 
 WdivCruise_WdivClimb = np.exp(((-rangeDiversion) * SFC_cruise) * gravity / (cruise_speed * L_Dcruise))
 
@@ -238,7 +237,6 @@ T_Wclimb = dynPresClimb * CD0 / Wclimb_Sclimb + Wclimb_Sclimb * 1 / (dynPresClim
 T_W0climb = T_Wclimb * Wclimb_W0
 
 # First do statistical approach
-etaPropeller = 0.8  # Aircraft design book p. 518
 a_tw = 0.016  # Lect 5 twin turboprop
 C = 0.5  # Lect 5 twin turboprop
 P_W0statistical = a_tw * cruise_speed ** C * 1000  # W kg-1
