@@ -314,19 +314,17 @@ ax1.axhline(y=P_W0cruise * 1e-3, color='y', label='Cruise', xmin=W_SList[0], xma
 # Finalize wing area, thrust/weight, thrust and power
 W0_S = W_Slanding
 i = np.argmin(np.abs(np.array(W_SList)-W0_S))
-T_W0 = np.interp(W0_S, W_SList[i:i+2], T_W0climb[i:i+2])
+P_W0 = np.interp(W0_S, W_SList[i:i+2], P_W0takeoff[i:i+2])
 
 S = W0 / W0_S
-T = T_W0 * W0
-P = T * Vclimb / etaPropeller
+P = P_W0 * W0
 print(f'\nTake-off wing loading: {W0_S:.3g} kg/m^2.')
-print(f'Take-off thrust-to-weight ratio: {T_W0 * 100:.3g}%.')
+print(f'Take-off power-to-weight ratio: {P_W0 * 100:.3g}%.')
 print(f'Wing reference area: {S:.3g} m^2.')
-print(f'Max thrust: {T / 1000:.3g} kN.')
-print(f'Max power (WARNING: BAD): {P / 1000000:.3g} MW.')
+print(f'Max power: {P / 1000000:.3g} MW.')
 
 # Place design point in diagram
-ax1.scatter([W0_S], [T_W0], c='r', marker='o', label='Design point', zorder=2)
+ax1.scatter([W0_S], [P_W0], c='r', marker='o', label='Design point', zorder=2)
 
 ax1.legend()
 
