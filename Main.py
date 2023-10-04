@@ -33,7 +33,8 @@ Wcrew = crewCount * passengerWeight
 Wpayload = passengerCount * passengerWeight
 
 ## Lift to drag ratio Isak
-Swet_Sref = 6.1  # Provided as a suggestion for ATR-72, "Aircraft Design Studies Based on the ATR 72", https://www.fzt.haw-hamburg.de/pers/Scholz/arbeiten/TextNita.pdf
+Swet_Sref = 6.1  # Provided as a suggestion for ATR-72,
+# "Aircraft Design Studies Based on the ATR 72", https://www.fzt.haw-hamburg.de/pers/Scholz/arbeiten/TextNita.pdf
 print(f'Swet/Sref: {Swet_Sref:.3g}.')
 A = 12  # Aspect ratio https://www.rocketroute.com/aircraft/atr-72-212, https://en.wikipedia.org/wiki/ATR_72
 print(f'Aspect ratio: {A:.3g}.')
@@ -222,7 +223,8 @@ takeoffToCruiseTime = 15.5 * 60  # s
 takeoffAlt = 1500 * m_feet  # m
 cruiseAlt = 250 * 100 * m_feet  # m
 VclimbVertical = (cruiseAlt - takeoffAlt) / takeoffToCruiseTime  # m s-1
-ATRClimbVertical = 1335 * m_feet / 60  # m s-1 http://www.atr-aircraft.com/wp-content/uploads/2020/07/Factsheets_-_ATR_72-600.pdf
+ATRClimbVertical = 1335 * m_feet / 60  # m s-1
+# http://www.atr-aircraft.com/wp-content/uploads/2020/07/Factsheets_-_ATR_72-600.pdf
 ATRClimbSpeed = 170 * m_s_knot  # m s-1
 climbSpeedRatio = ATRClimbVertical / ATRClimbSpeed
 Vclimb = VclimbVertical / climbSpeedRatio
@@ -345,12 +347,13 @@ Kp = 0.52  # Lecture 5 three blades
 DpropellerStatistical = Kp * (Ptakeoff / 1000) ** (1/4)
 
 # Find the propeller size by compressibility effects
-rpsPropeller = 1200 / 60  # Taken from ATR 72 https://www.naval-technology.com/projects/atr-72-asw-anti-submarine-warfare-aircraft/
+rpsPropeller = 1200 / 60  # Taken from ATR 72
+# https://www.naval-technology.com/projects/atr-72-asw-anti-submarine-warfare-aircraft/
 Mtip = 0.97
 DpropellerCompressibility = np.sqrt((Mtip * sound_speed) ** 2 - cruise_speed ** 2) / (np.pi * rpsPropeller)
 
 # Take the maximum
-Dpropeller = max(DpropellerStatistical, DpropellerCompressibility)  # Probably do not want the diameter to reduce, pick the max
+Dpropeller = max(DpropellerStatistical, DpropellerCompressibility)  # Do not want the diameter to reduce, pick the max
 print(f'\nPropeller diameter: {Dpropeller:.3g} m.')
 
 ## Calculate span, taper-ratio, wing stuff
@@ -375,10 +378,11 @@ print(f'Half wing span: {span/2:.3g} m.')
 
 
 def eqn2(p):
-    root_chord, tip_chord = p
-    return 0.4*root_chord - tip_chord, (2*S/span) - root_chord - tip_chord
+    rc, tc = p
+    return 0.4 * rc - tc, (2*S/span) - rc - tc
 
 
+# noinspection PyTypeChecker
 root_chord, tip_chord = fsolve(eqn2, (1, 1))
 print(f'Root chord: {root_chord:.3g} m.')
 print(f'Tip chord: {tip_chord:.3g} m.')
