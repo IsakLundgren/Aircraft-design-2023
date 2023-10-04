@@ -249,7 +249,9 @@ Wclimb_Sclimb = W_SList / Wclimb_W0
 dynPresClimb = rhoSL * Vclimb ** 2 / 2
 CD0 = 0.02  # Raymer p.135
 osw = 0.8  # Oswald span efficiency factor, Raymer p.135
-T_Wclimb = dynPresClimb * CD0 / Wclimb_Sclimb + Wclimb_Sclimb * 1 / (dynPresClimb * np.pi * A * osw) + climbSpeedRatio
+T_Wclimb = (dynPresClimb * CD0 / (Wclimb_Sclimb * gravity)
+            + Wclimb_Sclimb * gravity / (dynPresClimb * np.pi * A * osw)
+            + climbSpeedRatio)
 T_W0climb = T_Wclimb * Wclimb_W0
 P_W0climb = Vclimb * gravity / etaPropeller * T_W0climb
 
@@ -268,10 +270,6 @@ TOPfps = 500  # Raymer fig 5.4 Empirical observation
 TOPMetric = (1 / m_feet) ** 2 * (1 / W_hp) / (1 / kg_lbs) ** 2 * TOPfps
 CLTakeoff = CLmax / 1.21  # Equation from lecture 5 slide 21
 P_W0takeoff = W_SList / (CLTakeoff * TOPMetric)
-
-# P_W0hplbs = P_W0statistical / W_hp * kg_lbs
-# W_StakeoffLbs_ft2 = TakeoffParameter * CLTakeoff * P_W0hplbs
-# W_Stakeoff = W_StakeoffLbs_ft2 * kg_lbs / (m_feet ** 2)
 
 # Calculate landing distance wing-loading
 LFL = 1350  # m
@@ -306,8 +304,8 @@ ax1.axhline(y=P_W0cruise, color='y', label='Cruise', xmin=W_SList[0], xmax=W_SLi
 
 # Finalize wing area, thrust/weight, thrust and power
 W0_S = W_Slanding
-i = np.argmin(np.abs(np.array(W_SList)-W0_S))
-P_W0 = np.interp(W0_S, W_SList[i:i+2], P_W0takeoff[i:i+2])
+# i = np.argmin(np.abs(np.array(W_SList)-W0_S))
+P_W0 = P_W0cruise  # np.interp(W0_S, W_SList[i:i+2], P_W0takeoff[i:i+2])
 
 S = W0 / W0_S
 P = P_W0 * W0
