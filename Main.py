@@ -238,6 +238,7 @@ CD0 = 0.02  # Raymer p.135
 osw = 0.8  # Oswald span efficiency factor, Raymer p.135
 T_Wclimb = dynPresClimb * CD0 / Wclimb_Sclimb + Wclimb_Sclimb * 1 / (dynPresClimb * np.pi * A * osw) + climbSpeedRatio
 T_W0climb = T_Wclimb * Wclimb_W0
+P_W0climb = Vclimb * gravity / etaPropeller * T_W0climb
 
 # First do statistical approach
 a_tw = 0.016  # Lect 5 twin turboprop
@@ -308,7 +309,7 @@ ax1.vlines(x=W_Slanding, color='k', linestyles='--', label='Landing', ymin=0, ym
 ax1.plot(W_SList, P_W0takeoff * 1e-3, 'g-', label='Take-off')
 
 # Climb line
-ax1.plot(W_SList, T_W0climb, 'b-', label='Climb')
+ax1.plot(W_SList, P_W0climb * 1e-3, 'b-', label='Climb')
 
 # Cruise line
 ax1.axhline(y=T_Wcruise, color='y', label='Cruise', xmin=W_SList[0], xmax=W_SList[-1])
