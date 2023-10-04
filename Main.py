@@ -49,7 +49,7 @@ print(f'L/D cruise: {L_Dmax:.3g}.')
 fig, ax = plt.subplots()
 
 # Read excel SFC data
-dfSFC = pd.read_excel('excel/SFC_prop.xlsx')
+dfSFC = pd.read_excel('excel/SFC_prop.xlsx', sheet_name=0)
 yearData = dfSFC.loc[:, 'year']
 SFCData = dfSFC.loc[:, 'SFC kg/Ws']
 
@@ -181,6 +181,7 @@ def We_frac_equation(We_W0_inner):
     return Weorg_W0 + Wt_W0 - We_W0_inner
 
 
+# noinspection PyTypeChecker
 We_W0 = float(fsolve(We_frac_equation, We_W0initialGuess))
 print(f'OEW/MTOW: {We_W0:.3g}.')
 
