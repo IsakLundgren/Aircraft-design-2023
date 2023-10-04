@@ -273,11 +273,10 @@ CLTakeoff = CLmax / 1.21  # Equation from lecture 5 slide 21
 def WStoTW(WSinternal):
     PWhp_lbs = WSinternal * 1/(TakeoffParameter * CLTakeoff)
     PWW_kg = PWhp_lbs * W_hp / kg_lbs
-    TW = etaPropeller / cruise_speed * PWW_kg / gravity
-    return TW
+    return PWW_kg
 
 
-T_W0takeoff = WStoTW(W_SList)
+P_W0takeoff = WStoTW(W_SList)
 
 # P_W0hplbs = P_W0statistical / W_hp * kg_lbs
 # W_StakeoffLbs_ft2 = TakeoffParameter * CLTakeoff * P_W0hplbs
@@ -294,7 +293,7 @@ W_Slanding = (LFLReal - OCD) / 4.84 * CLmax / Wfinal_W0
 fig, ax1 = plt.subplots()
 ax1.set_title('Constraint diagram')
 ax1.set_xlabel('W/S [kg m-2]')
-ax1.set_ylabel('T/W [-]')
+ax1.set_ylabel('P/W [kW kg-1]')
 ax1.grid()
 ax1.set_xlim([W_SList[0], W_SList[-1]])
 ax1.set_ylim([0, 1])
@@ -306,7 +305,7 @@ ax1.vlines(x=W_StakeoffStall, color='r', linestyles='--', label='Stall', ymin=0,
 ax1.vlines(x=W_Slanding, color='k', linestyles='--', label='Landing', ymin=0, ymax=1)
 
 # Take-off line
-ax1.plot(W_SList, T_W0takeoff, 'g-', label='Take-off')
+ax1.plot(W_SList, P_W0takeoff * 1e-3, 'g-', label='Take-off')
 
 # Climb line
 ax1.plot(W_SList, T_W0climb, 'b-', label='Climb')
