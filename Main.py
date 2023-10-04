@@ -262,19 +262,12 @@ W_Sstall = 1 / (2 * gravity) * rhoSL * Vstall ** 2 * CLmax
 Wloiter_W0 = Wloiter_Wdescent * Wdescent_Wcruise * Wcruise_Wclimb * Wclimb_Winit * Winit_W0
 W_StakeoffStall = W_Sstall / Wloiter_W0
 
-# Calculate take-off wing-loading
+# Calculate take-off Power to weight
 TOFL = 1400  # m
-TakeoffParameter = 420  # Empirical observation from lecture 5 slide 21
+TOPfps = 500  # Raymer fig 5.4 Empirical observation
+TOPMetric = (1 / m_feet) ** 2 * (1 / W_hp) / (1 / kg_lbs) ** 2 * TOPfps
 CLTakeoff = CLmax / 1.21  # Equation from lecture 5 slide 21
-
-
-def WStoTW(WSinternal):
-    PWhp_lbs = WSinternal * 1/(TakeoffParameter * CLTakeoff)
-    PWW_kg = PWhp_lbs * W_hp / kg_lbs
-    return PWW_kg
-
-
-P_W0takeoff = WStoTW(W_SList)
+P_W0takeoff = W_SList / (CLTakeoff * TOPMetric)
 
 # P_W0hplbs = P_W0statistical / W_hp * kg_lbs
 # W_StakeoffLbs_ft2 = TakeoffParameter * CLTakeoff * P_W0hplbs
@@ -291,25 +284,25 @@ W_Slanding = (LFLReal - OCD) / 4.84 * CLmax / Wfinal_W0
 fig, ax1 = plt.subplots()
 ax1.set_title('Constraint diagram')
 ax1.set_xlabel('W/S [kg m-2]')
-ax1.set_ylabel('P/W [kW kg-1]')
+ax1.set_ylabel('P/W [W kg-1]')
 ax1.grid()
 ax1.set_xlim([W_SList[0], W_SList[-1]])
-ax1.set_ylim([0, 1])
+ax1.set_ylim([0, 400])
 
 # Stall line
-ax1.vlines(x=W_StakeoffStall, color='r', linestyles='--', label='Stall', ymin=0, ymax=1)
+ax1.vlines(x=W_StakeoffStall, color='r', linestyles='--', label='Stall', ymin=0, ymax=400)
 
 # Landing line
-ax1.vlines(x=W_Slanding, color='k', linestyles='--', label='Landing', ymin=0, ymax=1)
+ax1.vlines(x=W_Slanding, color='k', linestyles='--', label='Landing', ymin=0, ymax=400)
 
 # Take-off line
-ax1.plot(W_SList, P_W0takeoff * 1e-3, 'g-', label='Take-off')
+ax1.plot(W_SList, P_W0takeoff, 'g-', label='Take-off')
 
 # Climb line
-ax1.plot(W_SList, P_W0climb * 1e-3, 'b-', label='Climb')
+ax1.plot(W_SList, P_W0climb, 'b-', label='Climb')
 
 # Cruise line
-ax1.axhline(y=P_W0cruise * 1e-3, color='y', label='Cruise', xmin=W_SList[0], xmax=W_SList[-1])
+ax1.axhline(y=P_W0cruise, color='y', label='Cruise', xmin=W_SList[0], xmax=W_SList[-1])
 
 # Finalize wing area, thrust/weight, thrust and power
 W0_S = W_Slanding
@@ -319,7 +312,7 @@ P_W0 = np.interp(W0_S, W_SList[i:i+2], P_W0takeoff[i:i+2])
 S = W0 / W0_S
 P = P_W0 * W0
 print(f'\nTake-off wing loading: {W0_S:.3g} kg/m^2.')
-print(f'Take-off power-to-weight ratio: {P_W0 * 100:.3g}%.')
+print(f'Take-off power-to-weight ratio: {P_W0:.3g} W/kg.')
 print(f'Wing reference area: {S:.3g} m^2.')
 print(f'Max power: {P / 1000000:.3g} MW.')
 
