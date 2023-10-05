@@ -77,7 +77,7 @@ SFCH_SFCJetA = LHVJetA / LHVH
 # Finalize SFC calculation
 SFCCruiseAdjustment = 1 - 0.1
 SFC_power = np.exp(param[1]) * np.exp(param[0] * releaseYear) * SFCH_SFCJetA * SFCCruiseAdjustment
-print(f'SFC_power: {SFC_power * 10**6:.3g} mg/(Ws).')
+print(f'SFC_power in cruise: {SFC_power * 10**6:.3g} mg/(Ws).')
 ax.scatter([releaseYear], [SFC_power * 10 ** 6],
            s=plt.rcParams['lines.markersize'] ** 2 * 2,
            c='k', marker='x', label='Model SFC (adjusted)')
@@ -112,7 +112,7 @@ sound_speed = 309.696  # m/s  at FL250
 Vcruise = cruise_mach * sound_speed
 etaPropeller = 0.8  # Aircraft design book p. 518
 SFC_cruise = (SFC_power * Vcruise) / etaPropeller  # kg/Ns # Converted to turbojet equivalent
-print(f'SFC: {SFC_cruise * 10**6:.3g} mg/Ns.')
+print(f'SFC_thrust in cruise: {SFC_cruise * 10**6:.3g} mg/Ns.')
 L_Dcruise = L_Dmax
 
 Wcruise_Wclimb = np.exp((-rangeAircraft*SFC_cruise*gravity)/(Vcruise * L_Dcruise))
@@ -126,7 +126,9 @@ endurance = 20 * 60  # s #Converted from minutes
 loiter_speed = 200 * 0.514  # m/s # Converted from knots
 SFC_loiter_power = (
     SFC_power * 0.101 / 0.085)  # kg/Ws Typical value for turboprop from historical data Raymer. 0.08 given in slides
+print(f'SFC_power in loiter: {SFC_loiter_power * 10**6:.3g} mg/(Ws).')
 SFC_loiter = (SFC_loiter_power * loiter_speed) / etaPropeller  # kg/Ns # Converted to turbojet equivalent
+print(f'SFC_power in loiter: {SFC_loiter * 10**6:.3g} mg/Ns.')
 L_Dloiter = 0.866 * L_Dmax
 print(f'L/D loiter: {L_Dloiter:.3g}.')
 Wloiter_Wdescent = np.exp((-endurance*SFC_loiter*gravity)/L_Dcruise)
@@ -214,7 +216,6 @@ print(f'Tank height: {tankHeight:.3g} m.')
 # Initialize list of canidates
 W_SList = np.linspace(0, 600, 1000)
 
-
 # Cruise
 
 # Statistical approach
@@ -286,21 +287,27 @@ ax1.set_ylabel('P/W [W kg-1]')
 ax1.grid()
 ax1.set_xlim([W_SList[0], W_SList[-1]])
 ax1.set_ylim([0, 400])
-
-# Stall line
-ax1.vlines(x=W_StakeoffStall, color='r', linestyles='--', label='Stall', ymin=0, ymax=400)
+opac = 0.3
 
 # Landing line
 ax1.vlines(x=W_Slanding, color='k', linestyles='--', label='Landing', ymin=0, ymax=400)
+ax1.fill_betweenx(P_W0climb, W_Slanding, W_SList[-1], color='black', alpha=opac)
 
-# Take-off line
-ax1.plot(W_SList, P_W0takeoff, 'g-', label='Take-off')
+# Stall line
+ax1.vlines(x=W_StakeoffStall, color='r', linestyles='--', label='Stall', ymin=0, ymax=400)
+ax1.fill_betweenx(P_W0climb, W_StakeoffStall, W_SList[-1], color='red', alpha=opac)
 
 # Climb line
 ax1.plot(W_SList, P_W0climb, 'b-', label='Climb')
+ax1.fill_between(W_SList, 0, P_W0climb, color='blue', alpha=opac)
 
 # Cruise line
 ax1.axhline(y=P_W0cruise, color='y', label='Cruise', xmin=W_SList[0], xmax=W_SList[-1])
+ax1.fill_between(W_SList, 0, P_W0cruise, color='yellow', alpha=opac)
+
+# Take-off line
+ax1.plot(W_SList, P_W0takeoff, 'g-', label='Take-off')
+ax1.fill_between(W_SList, 0, P_W0takeoff, color='green', alpha=opac)
 
 # Finalize wing area, thrust/weight, thrust and power
 W0_S = W_Slanding
@@ -317,7 +324,7 @@ print(f'Max power: {P / 1000000:.3g} MW.')
 # Place design point in diagram
 ax1.scatter([W0_S], [P_W0], c='r', marker='o', label='Design point', zorder=2)
 
-ax1.legend()
+ax1.legend(loc='upper center')
 
 # Save figure
 figureDPI = 200
