@@ -394,6 +394,47 @@ VT_area = c_VT * span * S / dist_to_VT
 # Horizontal tail
 HT_area = c_HT * mean_chord * S / dist_to_HT
 
+### Mass breakdown
+
+dictMass = []
+
+# Engine mass
+NEn = 2
+mEngine = 1000  # kg TODO find the actual weight
+
+# Systems mass breakdown, things we cannot really change that much, everything from Raymer
+Nf = 4  # Rudder, aileron, elevator, and flaps
+Nm = 0  # Assume only hydraulics
+Nc = crewCount
+Np = crewCount + passengerCount
+Ngen = NEn
+Kr = 1  # Since turboprop
+Ktp = 0.793  # Since turboprop
+LEc = 2 * 10  # m TODO Look in the finished model for this value
+Lf = 35  # m TODO Look in the finished model for this value
+La = 2 * Lf  # m (Assume twice the length of the fuselage)
+Bw = span  # m
+Rkva = 50  # system electrical rating, between 40 and 60
+muav = (800 + 1400) / 2 * kg_lbs  # kg
+mdg = W0 * Wcruise_W0  # kg
+Vpr = 240  # m3 TODO Look in the finished model for this value
+
+mStarter = 49.19 * (NEn / kg_lbs * mEngine / 1000) * kg_lbs  # kg
+mEngineControls = (5 * NEn + 0.8 * LEc / m_feet) * kg_lbs  # kg
+mFlightControls = (145.9 * Nf ** 0.554 * (1 + Nm / Nf) ** -1) * kg_lbs  # kg
+mAPU = 1  # kg TODO find APU weight
+mInstruments = (4.509 * Kr * Ktp * Nc ** 0.541 * NEn * (Lf / m_feet + Bw / m_feet) ** 0.5) * kg_lbs  # kg
+mHydraulics = (0.267 * Nf * (Lf / m_feet + Bw / m_feet) ** 0.937) * kg_lbs  # kg
+mElectrics = 7.291 * Rkva ** 0.782 * (La / m_feet) ** 0.346 * Ngen ** 0.1  # kg
+mAvionics = (1.73 * (muav / kg_lbs) ** 0.983) * kg_lbs  # kg
+mFurnishings = (
+        (0.0577 * Nc ** 0.1 * (Wpayload / kg_lbs) ** 0.393 * (Swet_Sref * S / m_feet ** 2) ** 0.75) * kg_lbs)  # kg
+mSeats = 1  # kg
+mAirCond = (62.36 * Np ** 0.25 * (Vpr / m_feet ** 3 / 1000) ** 0.604 * muav ** 0.1) * kg_lbs # kg
+mAntiIce = 0.002 * mdg  # kg
+mHandlingGear = 3e-4 * mdg  # kg
+
+# Fuel feeding
 
 ### Show the plots
 plt.show(block=True)
