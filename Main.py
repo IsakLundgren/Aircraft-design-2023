@@ -446,6 +446,47 @@ dictMass['Vertical tail'] = (0.0026 * (1 + Ht_HVT) ** 0.225
                              * AVT ** 0.35
                              * t_c ** -0.5) * kg_lbs  # kg
 
+# Fuselage mass
+KWS = 0  # Zero sweep
+Kdoor = 1
+KLg = 1.12
+Lf = 35  # m TODO Look in the finished model for this value
+dfuselage = 3.5  # m TODO Look in the finished model for this value
+Sf = Swet_Sref * S * 0.7  # m2 TODO Look in the finished model
+
+dictMass['Fuselage'] = (0.3280 * Kdoor
+                        * KLg
+                        * (W0 / kg_lbs * Nz) ** 0.5
+                        * (Lf / m_feet) ** 0.25
+                        * (Sf / m_feet ** 2) * 0.302
+                        * (1 + KWS) ** 0.04
+                        * (Lf/dfuselage) ** 0.1) * kg_lbs  # kg
+
+# Landing gear mass
+Kmp = 1  # Assuming no kneeling
+Knp = 1  # Assuming no kneeling
+mLanding = W0 * Wfinal_W0  # kg
+Lm = 3  # m TODO find actual value
+Ln = 1  # m TODO find actual value
+NL = 1.5 * 2.8
+Nmw = 4  # TODO find actual value
+Nnw = 2  # TODO find actual value
+Nmss = 2  # TODO find acutal value
+
+dictMass['Main landing gear'] = (0.0106 * Kmp
+                                 * (mLanding / kg_lbs) ** 0.888
+                                 * NL ** 0.25
+                                 * (Lm / m_feet) ** 0.4
+                                 * Nmw ** 0.321
+                                 * Nmss ** -0.5
+                                 * (Vstall / m_feet) ** 0.1) * kg_lbs  # kg
+
+dictMass['Nose landing gear'] = (0.032 * Knp
+                                 * (mLanding / kg_lbs) ** 0.646
+                                 * NL ** 0.2
+                                 * (Lm / m_feet) ** 0.5
+                                 * Nnw ** 0.321) * kg_lbs  # kg
+
 # Engine mass
 NEn = 2
 mEngine = 1000  # kg TODO find the actual weight
@@ -459,17 +500,16 @@ Ngen = NEn
 Kr = 1  # Since turboprop
 Ktp = 0.793  # Since turboprop
 LEc = 2 * 10  # m TODO Look in the finished model for this value
-Lf = 35  # m TODO Look in the finished model for this value
 La = 2 * Lf  # m (Assume twice the length of the fuselage)
 Bw = span  # m
 Rkva = 50  # system electrical rating, between 40 and 60
 muav = (800 + 1400) / 2 * kg_lbs  # kg
-mdg = W0 * Wcruise_W0  # kg
+mdg = W0  # kg
 Vpr = 240  # m3 TODO Look in the finished model for this value
 
 dictMass['Starter'] = 49.19 * (NEn / kg_lbs * mEngine / 1000) * kg_lbs  # kg
-dictMass['EngineControls'] = (5 * NEn + 0.8 * LEc / m_feet) * kg_lbs  # kg
-dictMass['FlightControls'] = (145.9 * Nf ** 0.554 * (1 + Nm / Nf) ** -1) * kg_lbs  # kg
+dictMass['Engine controls'] = (5 * NEn + 0.8 * LEc / m_feet) * kg_lbs  # kg
+dictMass['Flight controls'] = (145.9 * Nf ** 0.554 * (1 + Nm / Nf) ** -1) * kg_lbs  # kg
 dictMass['APU'] = 1  # kg TODO find APU weight
 dictMass['Instruments'] = (4.509 * Kr * Ktp * Nc ** 0.541 * NEn * (Lf / m_feet + Bw / m_feet) ** 0.5) * kg_lbs  # kg
 dictMass['Hydraulics'] = (0.267 * Nf * (Lf / m_feet + Bw / m_feet) ** 0.937) * kg_lbs  # kg
@@ -478,8 +518,8 @@ dictMass['Avionics'] = (1.73 * (muav / kg_lbs) ** 0.983) * kg_lbs  # kg
 dictMass['Furnishings'] = (
         (0.0577 * Nc ** 0.1 * (Wpayload / kg_lbs) ** 0.393 * (Swet_Sref * S / m_feet ** 2) ** 0.75) * kg_lbs)  # kg
 dictMass['Seats'] = 1  # kg
-dictMass['AirCond'] = (62.36 * Np ** 0.25 * (Vpr / m_feet ** 3 / 1000) ** 0.604 * muav ** 0.1) * kg_lbs # kg
-dictMass['AntiIce'] = 0.002 * mdg  # kg
+dictMass['Air-conditioning'] = (62.36 * Np ** 0.25 * (Vpr / m_feet ** 3 / 1000) ** 0.604 * muav ** 0.1) * kg_lbs  # kg
+dictMass['Anti-ice'] = 0.002 * mdg  # kg
 dictMass['HandlingGear'] = 3e-4 * mdg  # kg
 
 # Fuel feeding
