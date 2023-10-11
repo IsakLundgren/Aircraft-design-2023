@@ -356,8 +356,8 @@ Dihedral_angle = 2      # General value to assume and begin with design
 t_c = 0.15              # Thickness to chord ratio, From historical plots
 c_HT = 0.9              # Constant, Raymer 160
 c_VT = 0.08             # Constant, Raymer 160
-dist_to_VT = 1
-dist_to_HT = 1
+dist_to_VT = 15  # TODO find this in model
+dist_to_HT = 15  # TODO find this in model
 
 # Aileron sizing - 50-90% of wingspan
 #                - 20% of wing chord
@@ -396,7 +396,55 @@ HT_area = c_HT * mean_chord * S / dist_to_HT
 
 ### Mass breakdown
 
-dictMass = []
+dictMass = {}
+
+# Wing mass
+Nz = 3.5 * 1.5  # Ultimate load factor
+Scsw = 78.6 * 0.1  # m2 TODO find actual value in model
+dictMass['Wing'] = (0.0051 * (W0 / kg_lbs * Nz) ** 0.557
+                    * (S / m_feet ** 2) ** 0.649
+                    * A ** 0.5
+                    * t_c ** -0.4
+                    * (1 - taper_ratio) ** 0.1
+                    * np.cos(0) ** -1
+                    * (Scsw / m_feet ** 2) ** 0.1) * kg_lbs  # kg
+
+# Horizontal tail mass
+Kuht = 1.143
+Fw = 2  # m TODO find actual value in model
+bh = 6  # m TODO find
+SHT = HT_area  # m2
+Ky = 0.3 * dist_to_HT  # m
+LambdaHT = 10  # degrees TODO find
+AHT = A  # TODO find
+Selevator = 0.1 * SHT  # m2 TODO find
+
+dictMass['Horizontal tail'] = (0.0379 * Kuht * (1 + Fw / bh) ** -0.25
+                               * (W0 / kg_lbs) ** 0.639
+                               * Nz ** 0.1
+                               * (SHT / m_feet ** 2) ** 0.75
+                               * (dist_to_HT / m_feet) ** -1
+                               * (Ky / m_feet) ** 0.704
+                               * np.cos(np.pi / 180 * LambdaHT) ** -1
+                               * AHT ** 0.166
+                               * (1 + Selevator / SHT) ** 0.1) * kg_lbs  # kg
+
+# Vertical tail mass
+Ht_HVT = 0
+SVT = VT_area
+Kz = dist_to_VT  # m
+LambdaVT = 10  # degrees TODO find
+AVT = A  # TODO find
+
+dictMass['Vertical tail'] = (0.0026 * (1 + Ht_HVT) ** 0.225
+                             * (W0 / kg_lbs) ** 0.556
+                             * Nz ** 0.536
+                             * (dist_to_VT / m_feet) ** -0.5
+                             * (SVT / m_feet ** 2) ** 0.5
+                             * (Kz / m_feet) ** 0.875
+                             * np.cos(np.pi / 180 * LambdaVT)
+                             * AVT ** 0.35
+                             * t_c ** -0.5) * kg_lbs  # kg
 
 # Engine mass
 NEn = 2
@@ -419,20 +467,20 @@ muav = (800 + 1400) / 2 * kg_lbs  # kg
 mdg = W0 * Wcruise_W0  # kg
 Vpr = 240  # m3 TODO Look in the finished model for this value
 
-mStarter = 49.19 * (NEn / kg_lbs * mEngine / 1000) * kg_lbs  # kg
-mEngineControls = (5 * NEn + 0.8 * LEc / m_feet) * kg_lbs  # kg
-mFlightControls = (145.9 * Nf ** 0.554 * (1 + Nm / Nf) ** -1) * kg_lbs  # kg
-mAPU = 1  # kg TODO find APU weight
-mInstruments = (4.509 * Kr * Ktp * Nc ** 0.541 * NEn * (Lf / m_feet + Bw / m_feet) ** 0.5) * kg_lbs  # kg
-mHydraulics = (0.267 * Nf * (Lf / m_feet + Bw / m_feet) ** 0.937) * kg_lbs  # kg
-mElectrics = 7.291 * Rkva ** 0.782 * (La / m_feet) ** 0.346 * Ngen ** 0.1  # kg
-mAvionics = (1.73 * (muav / kg_lbs) ** 0.983) * kg_lbs  # kg
-mFurnishings = (
+dictMass['Starter'] = 49.19 * (NEn / kg_lbs * mEngine / 1000) * kg_lbs  # kg
+dictMass['EngineControls'] = (5 * NEn + 0.8 * LEc / m_feet) * kg_lbs  # kg
+dictMass['FlightControls'] = (145.9 * Nf ** 0.554 * (1 + Nm / Nf) ** -1) * kg_lbs  # kg
+dictMass['APU'] = 1  # kg TODO find APU weight
+dictMass['Instruments'] = (4.509 * Kr * Ktp * Nc ** 0.541 * NEn * (Lf / m_feet + Bw / m_feet) ** 0.5) * kg_lbs  # kg
+dictMass['Hydraulics'] = (0.267 * Nf * (Lf / m_feet + Bw / m_feet) ** 0.937) * kg_lbs  # kg
+dictMass['Electrics'] = 7.291 * Rkva ** 0.782 * (La / m_feet) ** 0.346 * Ngen ** 0.1  # kg
+dictMass['Avionics'] = (1.73 * (muav / kg_lbs) ** 0.983) * kg_lbs  # kg
+dictMass['Furnishings'] = (
         (0.0577 * Nc ** 0.1 * (Wpayload / kg_lbs) ** 0.393 * (Swet_Sref * S / m_feet ** 2) ** 0.75) * kg_lbs)  # kg
-mSeats = 1  # kg
-mAirCond = (62.36 * Np ** 0.25 * (Vpr / m_feet ** 3 / 1000) ** 0.604 * muav ** 0.1) * kg_lbs # kg
-mAntiIce = 0.002 * mdg  # kg
-mHandlingGear = 3e-4 * mdg  # kg
+dictMass['Seats'] = 1  # kg
+dictMass['AirCond'] = (62.36 * Np ** 0.25 * (Vpr / m_feet ** 3 / 1000) ** 0.604 * muav ** 0.1) * kg_lbs # kg
+dictMass['AntiIce'] = 0.002 * mdg  # kg
+dictMass['HandlingGear'] = 3e-4 * mdg  # kg
 
 # Fuel feeding
 
