@@ -3,6 +3,7 @@ import pandas as pd
 from scipy.optimize import fsolve
 import matplotlib.pyplot as plt
 import warnings
+import csv
 
 warnings.filterwarnings("ignore")
 
@@ -565,6 +566,19 @@ rhoCruise = 0.54895  # kg m-3
 muCruise = 0.00001554  # Pa s
 ReCref = rhoCruise * Vcruise * mean_chord / muCruise
 print(f'\nCruise Reynolds number: {ReCref}')
+
+## VSPAero results
+
+# Read the VSP results
+data = {}
+with open('csv/VSPAeroResults.csv', 'r', newline='') as csvfile:
+    reader = csv.reader(csvfile, skipinitialspace=True)
+    for row in reader:
+        key, val = row[0], row[-1]
+        if key not in data:
+            data[key] = [val]
+        else:
+            data[key].append(val)
 
 ### Show the plots
 plt.show(block=True)
