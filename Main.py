@@ -560,25 +560,93 @@ print('-' * 60)
 print(f'Total mass accounted for: {total_mass:.3g} kg')
 print(f'Total MTOW percentage: {total_mtow_percentage:.3g}%')
 
-## Reynolds number
+## Inputs to OpenVSP
 # Numbers from standard atmosphere with 0 temperature shift https://aerotoolbox.com/atmcalc/
 rhoCruise = 0.54895  # kg m-3
 muCruise = 0.00001554  # Pa s
 ReCref = rhoCruise * Vcruise * mean_chord / muCruise
-print(f'\nCruise Reynolds number: {ReCref}')
+print(f'\nCruise Reynolds number: {ReCref:.3g}')
+
+DPropHub = 4.250 / 6.430
+print(f'Propeller hub diameter: {DPropHub:.3g} m')
+Tcruise = T_Wcruise * W0 * Wcruise_W0 * gravity
+thrustCoeff = Tcruise / (rhoCruise * rpsPropeller ** 2 * Dpropeller ** 4)
+powerCoeff = Pcruise / (rhoCruise * rpsPropeller ** 3 * Dpropeller ** 5)
+print(f'Thrust coefficient: {thrustCoeff:.3g}')
+print(f'Power coefficinet: {powerCoeff:.3g}')
 
 ## VSPAero results
 
 # Read the VSP results
 data = {}
-with open('csv/VSPAeroResults.csv', 'r', newline='') as csvfile:
+with open('csv/VSPAeroResults2.csv', 'r', newline='') as csvfile:
     reader = csv.reader(csvfile, skipinitialspace=True)
+    validDataCheck = True
     for row in reader:
         key, val = row[0], row[-1]
-        if key not in data:
-            data[key] = [val]
-        else:
-            data[key].append(val)
+        try:
+            val = float(val)
+        except ValueError:
+            # Do nothing
+            val
+
+        if key == 'Results_Name':
+            validDataCheck = val == 'VSPAERO_History'
+        if validDataCheck:
+            if key not in data:
+                data[key] = [val]
+            else:
+                data[key].append(val)
+
+# Pick relevent data
+alphaSweep = data['Alpha']
+CMySweep = data['CMy']
+CDiSweep = data['CDi']
+L_DSweep = data['L/D']
+CDSweep = data['CDtot']
+CLSweep = data['CL']
+
+# Plot x vs AoA quantities
+
+colors = ['tab:red', 'tab:blue', 'tab:green']
+fig, ax = plt.subplots()
+ax.set_title('Angle sweep results')
+ax.set_xlabel('Alpha [deg]')
+ax.grid()
+
+ax.set_ylabel('C_My [-]', color=colors[0])
+ax.plot(alphaSweep, CMySweep, color=colors[0])
+ax.tick_params(axis='y', labelcolor=colors[0])
+
+ax1 = ax.twinx()
+ax1.set_ylabel('C_Di [-]', color=colors[1])
+ax1.plot(alphaSweep, CDiSweep, color=colors[1])
+ax1.tick_params(axis='y', labelcolor=colors[1])
+
+ax2 = ax.twinx()
+ax2.spines.right.set_position(('axes', 1.2))
+ax2.set_ylabel('L/D [-]', color=colors[2])
+ax2.plot(alphaSweep, L_DSweep, color=colors[2])
+ax2.tick_params(axis='y', labelcolor=colors[2])
+
+# Save figure
+figureDPI = 200
+fig.set_size_inches(8, 6)
+fig.savefig('img/AngleSweep.png', dpi=figureDPI)
+
+# Plot CL vs CD quantities
+fig, ax = plt.subplots()
+ax.set_title('Drag polar')
+ax.set_xlabel('C_Dtot [-]')
+ax.set_ylabel('C_L [-]')
+ax.grid()
+ax.plot(CDiSweep, CLSweep)  # TODO add parasitic drag
+
+# Save figure
+figureDPI = 200
+fig.set_size_inches(8, 6)
+fig.savefig('img/DragPolar.png', dpi=figureDPI)
+
 
 ### Show the plots
 plt.show(block=True)
