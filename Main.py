@@ -356,9 +356,14 @@ Dihedral_angle = 2      # General value to assume and begin with design
 t_c = 0.15              # Thickness to chord ratio, From historical plots
 c_HT = 0.9              # Constant, Raymer 160
 c_VT = 0.08             # Constant, Raymer 160
-dist_to_VT = 15  # TODO find this in model
-dist_to_HT = 15  # TODO find this in model
-
+dist_to_VT = (
+        (13.4 + 0.25 * (3.94968 + 0.25 * 5.92453 * np.sin(np.pi / 180 * 40))) -
+        (0 + 0.25 * (2.62 + 0.25 * (29.995 / 2) * np.sin(np.pi / 180 * 0)))
+)
+dist_to_HT = (
+        (13.6 + 0.25 * (2.77038 + 0.25 * (11.08 / 2) * np.sin(np.pi / 180 * 5))) -
+        (0 + 0.25 * (2.62 + 0.25 * (29.995 / 2) * np.sin(np.pi / 180 * 0)))
+)
 # Aileron sizing - 50-90% of wingspan
 #                - 20% of wing chord
 # Rudders & Elevators - 0-90% of wingspan
@@ -400,7 +405,8 @@ dictMass = {}
 
 # Wing mass
 Nz = 3.5 * 1.5  # Ultimate load factor
-Scsw = 78.6 * 0.1  # m2 TODO find actual value in model
+Scsw = 2 * ((span/(2 * 29.6) * 1) +
+            (span/(2 * 29.6) * 0.5)) / 2 * (span/(2 * 29.6) * 14.75)  # m2 Mearsured with ruler in VSP
 dictMass['Wing'] = (0.0051 * (W0 / kg_lbs * Nz) ** 0.557
                     * (S / m_feet ** 2) ** 0.649
                     * A ** 0.5
@@ -411,13 +417,13 @@ dictMass['Wing'] = (0.0051 * (W0 / kg_lbs * Nz) ** 0.557
 
 # Horizontal tail mass
 Kuht = 1.143
-Fw = 2  # m TODO find actual value in model
-bh = 6  # m TODO find
+Fw = (span / (2 * 29.5) * 5)  # m
+bh = 11.08152  # m
 SHT = HT_area  # m2
 Ky = 0.3 * dist_to_HT  # m
-LambdaHT = 10  # degrees TODO find
-AHT = A  # TODO find
-Selevator = 0.1 * SHT  # m2 TODO find
+LambdaHT = 5  # degrees
+AHT = 4
+Selevator = ((span / (2 * 29.5) * 2.05) + (span / (2 * 29.5) * 1.8)) / 2 * (span / (2 * 29.5) * 10)  # m2
 
 dictMass['Horizontal tail'] = (0.0379 * Kuht * (1 + Fw / bh) ** -0.25
                                * (W0 / kg_lbs) ** 0.639
@@ -433,8 +439,8 @@ dictMass['Horizontal tail'] = (0.0379 * Kuht * (1 + Fw / bh) ** -0.25
 Ht_HVT = 0
 SVT = VT_area
 Kz = dist_to_VT  # m
-LambdaVT = 10  # degrees TODO find
-AVT = A  # TODO find
+LambdaVT = 40  # degrees
+AVT = 1.5
 
 dictMass['Vertical tail'] = (0.0026 * (1 + Ht_HVT) ** 0.225
                              * (W0 / kg_lbs) ** 0.556
@@ -450,9 +456,9 @@ dictMass['Vertical tail'] = (0.0026 * (1 + Ht_HVT) ** 0.225
 KWS = 0  # Zero sweep
 Kdoor = 1
 KLg = 1.12
-Lf = 35  # m TODO Look in the finished model for this value
-dfuselage = 3.5  # m TODO Look in the finished model for this value
-Sf = Swet_Sref * S * 0.7  # m2 TODO Look in the finished model
+Lf = 34.1  # m
+dfuselage = 3.5  # m
+Sf = Swet_Sref * S * 0.7  # m2 assumed to account for lost area in the wings
 
 dictMass['Fuselage'] = (0.3280 * Kdoor
                         * KLg
@@ -460,18 +466,18 @@ dictMass['Fuselage'] = (0.3280 * Kdoor
                         * (Lf / m_feet) ** 0.25
                         * (Sf / m_feet ** 2) * 0.302
                         * (1 + KWS) ** 0.04
-                        * (Lf/dfuselage) ** 0.1) * kg_lbs  # kg
+                        * (Lf/dfuselage) ** 0.1) * kg_lbs * 1e-2  # kg TODO This is still incorrect
 
 # Landing gear mass
 Kmp = 1  # Assuming no kneeling
 Knp = 1  # Assuming no kneeling
 mLanding = W0 * Wfinal_W0  # kg
-Lm = 3  # m TODO find actual value
-Ln = 1  # m TODO find actual value
+Lm = (span / (2 * 29.5) * 9.5)  # m
+Ln = (span / (2 * 29.5) * 7.1)  # m
 NL = 1.5 * 2.8
-Nmw = 4  # TODO find actual value
-Nnw = 2  # TODO find actual value
-Nmss = 2  # TODO find acutal value
+Nmw = 4
+Nnw = 2
+Nmss = 2
 
 dictMass['Main landing gear'] = (0.0106 * Kmp
                                  * (mLanding / kg_lbs) ** 0.888
@@ -489,7 +495,8 @@ dictMass['Nose landing gear'] = (0.032 * Knp
 
 # Engine mass
 NEn = 2
-mEngine = 1000  # kg TODO find the actual weight
+mEngine = 2 * 716.9  # kg
+# https://www.easa.europa.eu/en/document-library/type-certificates/engine-cs-e/easaime049-pratt-whitney-canada-pw150-series
 
 # Systems mass breakdown, things we cannot really change that much, everything from Raymer
 Nf = 4  # Rudder, aileron, elevator, and flaps
@@ -499,30 +506,65 @@ Np = crewCount + passengerCount
 Ngen = NEn
 Kr = 1  # Since turboprop
 Ktp = 0.793  # Since turboprop
-LEc = 2 * 10  # m TODO Look in the finished model for this value
+LEc = 2 * (span / (2 * 29.5) * 23.5)  # m
 La = 2 * Lf  # m (Assume twice the length of the fuselage)
 Bw = span  # m
 Rkva = 50  # system electrical rating, between 40 and 60
 muav = (800 + 1400) / 2 * kg_lbs  # kg
 mdg = W0  # kg
-Vpr = 240  # m3 TODO Look in the finished model for this value
+Vpr = np.pi * (span / (2 * 29.5) * 2) ** 2 * (span / (2 * 29.5) * 27)  # m3 TODO Look in the finished model for this value
 
 dictMass['Starter'] = 49.19 * (NEn / kg_lbs * mEngine / 1000) * kg_lbs  # kg
 dictMass['Engine controls'] = (5 * NEn + 0.8 * LEc / m_feet) * kg_lbs  # kg
 dictMass['Flight controls'] = (145.9 * Nf ** 0.554 * (1 + Nm / Nf) ** -1) * kg_lbs  # kg
-dictMass['APU'] = 1  # kg TODO find APU weight
+dictMass['APU'] = 135 * kg_lbs  # kg
+# http://www.gelbyson.com/documenti/new/hamilton_sundstrand_hs/Gelbyson_HS_AuxiliaryPowerUnits_APU.pdf
 dictMass['Instruments'] = (4.509 * Kr * Ktp * Nc ** 0.541 * NEn * (Lf / m_feet + Bw / m_feet) ** 0.5) * kg_lbs  # kg
 dictMass['Hydraulics'] = (0.267 * Nf * (Lf / m_feet + Bw / m_feet) ** 0.937) * kg_lbs  # kg
 dictMass['Electrics'] = 7.291 * Rkva ** 0.782 * (La / m_feet) ** 0.346 * Ngen ** 0.1  # kg
 dictMass['Avionics'] = (1.73 * (muav / kg_lbs) ** 0.983) * kg_lbs  # kg
 dictMass['Furnishings'] = (
         (0.0577 * Nc ** 0.1 * (Wpayload / kg_lbs) ** 0.393 * (Swet_Sref * S / m_feet ** 2) ** 0.75) * kg_lbs)  # kg
-dictMass['Seats'] = 1  # kg
+dictMass['Seats'] = 15 * passengerCount + 27 * (crewCount - 3) + 15 * (crewCount - 2) # kg
 dictMass['Air-conditioning'] = (62.36 * Np ** 0.25 * (Vpr / m_feet ** 3 / 1000) ** 0.604 * muav ** 0.1) * kg_lbs  # kg
 dictMass['Anti-ice'] = 0.002 * mdg  # kg
 dictMass['HandlingGear'] = 3e-4 * mdg  # kg
 
-# Fuel feeding
+# Fuel system
+Nt = 2  # Number of tanks
+eqvTankVol = tankVolume * (rhoH / rhoJetA) * (LHVH / LHVJetA)
+
+
+dictMass['Fuel system'] = (2.405 * (tankVolume * SFCH_SFCJetA / m_feet ** 3)
+                           * 2 * Nt ** 0.5) * kg_lbs  # kg
+
+# Multiply weigths with fudge factors
+
+# Display mass breakdown
+print('\nDesign mass breakdown\n')
+print(f'{"Component":<30}{"Mass [kg]":<15}{"MTOW [%]":<10}')
+print('-' * 60)
+
+total_mass = 0
+total_mtow_percentage = 0
+
+for key in dictMass.keys():
+    mass_value = f'{dictMass[key]:.0f}'
+    mtow_percentage = f'{dictMass[key] / W0 * 100:.2g}%'
+    total_mass += dictMass[key]
+    total_mtow_percentage += dictMass[key] / W0 * 100
+    print(f'{key:<30}{mass_value:<15}{mtow_percentage:<10}')
+
+print('-' * 60)
+print(f'Total mass accounted for: {total_mass:.3g} kg')
+print(f'Total MTOW percentage: {total_mtow_percentage:.3g}%')
+
+## Reynolds number
+# Numbers from standard atmosphere with 0 temperature shift
+rhoCruise = 0.54895  # kg m-3
+muCruise = 0.00001554  # Pa s
+ReCref = rhoCruise * Vcruise * mean_chord / muCruise
+print(f'\nCruise Reynolds number: {ReCref}')
 
 ### Show the plots
 plt.show(block=True)
