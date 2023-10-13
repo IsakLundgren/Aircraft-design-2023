@@ -512,7 +512,7 @@ Bw = span  # m
 Rkva = 50  # system electrical rating, between 40 and 60
 muav = (800 + 1400) / 2 * kg_lbs  # kg
 mdg = W0  # kg
-Vpr = np.pi * (span / (2 * 29.5) * 2) ** 2 * (span / (2 * 29.5) * 27)  # m3 TODO Look in the finished model for this value
+Vpr = np.pi * (span / (2 * 29.5) * 2) ** 2 * (span / (2 * 29.5) * 27)  # m3
 
 dictMass['Starter'] = 49.19 * (NEn / kg_lbs * mEngine / 1000) * kg_lbs  # kg
 dictMass['Engine controls'] = (5 * NEn + 0.8 * LEc / m_feet) * kg_lbs  # kg
@@ -560,7 +560,7 @@ print(f'Total mass accounted for: {total_mass:.3g} kg')
 print(f'Total MTOW percentage: {total_mtow_percentage:.3g}%')
 
 ## Reynolds number
-# Numbers from standard atmosphere with 0 temperature shift
+# Numbers from standard atmosphere with 0 temperature shift https://aerotoolbox.com/atmcalc/
 rhoCruise = 0.54895  # kg m-3
 muCruise = 0.00001554  # Pa s
 ReCref = rhoCruise * Vcruise * mean_chord / muCruise
