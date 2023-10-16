@@ -169,19 +169,21 @@ print(f'WdivCruise_WdivClimb: {WdivCruise_WdivClimb:.3g}')
 print(f'WdivDescent_WdivCruise: {WdivDescent_WdivCruise:.3g}')
 print(f'\nFUEL/MTOW: {Wf_W0:.3g}.')
 
+## Tank weight fraction
+Gi = 0.35  # Gravimetric index,
+# added from https://chalmers.instructure.com/courses/25325/pages/project-kick-off?module_item_id=387491
+Wt_W0 = Wf_W0 * ((1-Gi)/Gi)
+
 ## Empty weight fraction Isak
 futureTechNudgeFactor = 0.96  # Design guess
 a = 0.92 * futureTechNudgeFactor
 c = -0.05
-Gi = 0.35  # Gravimetric index,
-# added from https://chalmers.instructure.com/courses/25325/pages/project-kick-off?module_item_id=387491
 
 We_W0initialGuess = 0.6  # From lecture 1
 
 
 def We_frac_equation(We_W0_inner):
     Weorg_W0 = a * ((Wcrew + Wpayload) / (1 - Wf_W0 - We_W0_inner)) ** c
-    Wt_W0 = Wf_W0 * ((1-Gi)/Gi)
     return Weorg_W0 + Wt_W0 - We_W0_inner
 
 
@@ -465,9 +467,9 @@ dictMass['Fuselage'] = (0.3280 * Kdoor
                         * KLg
                         * (W0 / kg_lbs * Nz) ** 0.5
                         * (Lf / m_feet) ** 0.25
-                        * (Sf / m_feet ** 2) * 0.302
+                        * (Sf / m_feet ** 2) ** 0.302
                         * (1 + KWS) ** 0.04
-                        * (Lf/dfuselage) ** 0.1) * kg_lbs * 1e-2  # kg TODO This is still incorrect
+                        * (Lf/dfuselage) ** 0.1) * kg_lbs  # kg
 
 # Landing gear mass
 Kmp = 1  # Assuming no kneeling
@@ -535,9 +537,8 @@ dictMass['HandlingGear'] = 3e-4 * mdg  # kg
 Nt = 2  # Number of tanks
 eqvTankVol = tankVolume * (rhoH / rhoJetA) * (LHVH / LHVJetA)
 
-
 dictMass['Fuel system'] = (2.405 * (tankVolume * SFCH_SFCJetA / m_feet ** 3)
-                           * 2 * Nt ** 0.5) * kg_lbs  # kg
+                           * 2 ** -1 * Nt ** 0.5) * kg_lbs + Wt_W0 * W0  # kg
 
 # Multiply weigths with fudge factors
 
