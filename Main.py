@@ -570,8 +570,8 @@ print(f'\nCruise Reynolds number: {ReCref:.3g}')
 DPropHub = 4.250 / 6.430
 print(f'Propeller hub diameter: {DPropHub:.3g} m')
 Tcruise = T_Wcruise * W0 * Wcruise_W0 * gravity
-thrustCoeff = Tcruise / (rhoCruise * rpsPropeller ** 2 * Dpropeller ** 4)
-powerCoeff = Pcruise / (rhoCruise * rpsPropeller ** 3 * Dpropeller ** 5)
+thrustCoeff = Tcruise / (rhoCruise * rpsPropeller ** 2 * Dpropeller ** 4 * NEn)
+powerCoeff = Pcruise / (rhoCruise * rpsPropeller ** 3 * Dpropeller ** 5 * NEn)
 print(f'Thrust coefficient: {thrustCoeff:.3g}')
 print(f'Power coefficinet: {powerCoeff:.3g}')
 
@@ -588,7 +588,7 @@ with open('csv/VSPAeroResults2.csv', 'r', newline='') as csvfile:
             val = float(val)
         except ValueError:
             # Do nothing
-            val
+            pass
 
         if key == 'Results_Name':
             validDataCheck = val == 'VSPAERO_History'
