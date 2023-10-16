@@ -498,7 +498,7 @@ dictMass['Nose landing gear'] = (0.032 * Knp
 
 # Engine mass
 NEn = 2
-mEngine = 2 * 716.9  # kg
+dictMass['Engines'] = mEngine = 2 * 716.9  # kg
 # https://www.easa.europa.eu/en/document-library/type-certificates/engine-cs-e/easaime049-pratt-whitney-canada-pw150-series
 
 # Systems mass breakdown, things we cannot really change that much, everything from Raymer
@@ -558,7 +558,7 @@ for key in dictMass.keys():
     print(f'{key:<30}{mass_value:<15}{mtow_percentage:<10}')
 
 print('-' * 60)
-print(f'Total mass accounted for: {total_mass:.3g} kg')
+print(f'Total mass accounted for: {total_mass / 1000:.3g} tonnes.')
 print(f'Total MTOW percentage: {total_mtow_percentage:.3g}%')
 
 ## Inputs to OpenVSP
