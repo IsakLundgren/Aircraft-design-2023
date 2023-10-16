@@ -542,6 +542,14 @@ dictMass['Fuel system'] = (2.405 * (tankVolume * SFCH_SFCJetA / m_feet ** 3)
 
 # Multiply weigths with fudge factors
 
+dictMass['Wing'] *= (0.85 + 0.9) / 2
+dictMass['Vertical tail'] *= (0.83 + 0.88) / 2
+dictMass['Horizontal tail'] *= (0.83 + 0.88) / 2
+dictMass['Fuselage'] *= (0.9 + 0.95) / 2
+dictMass['Anti-ice'] *= (0.85 + 0.9) / 2
+dictMass['Main landing gear'] *= (0.95 + 1) / 2
+dictMass['Nose landing gear'] *= (0.95 + 1) / 2
+
 # Display mass breakdown
 print('\nDesign mass breakdown\n')
 print(f'{"Component":<30}{"Mass [kg]":<15}{"MTOW [%]":<10}')
