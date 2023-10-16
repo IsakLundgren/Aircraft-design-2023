@@ -588,7 +588,7 @@ print(f'Power coefficinet: {powerCoeff:.3g}')
 
 # Read the VSP results
 data = {}
-with open('csv/VSPAeroResults2.csv', 'r', newline='') as csvfile:
+with open('csv/VSPAeroResultsCamber4Incidence2.csv', 'r', newline='') as csvfile:
     reader = csv.reader(csvfile, skipinitialspace=True)
     validDataCheck = True
     for row in reader:
@@ -614,6 +614,10 @@ CDiSweep = data['CDi']
 L_DSweep = data['L/D']
 CDSweep = data['CDtot']
 CLSweep = data['CL']
+
+# Add the parasitic drag to get the CDtotal
+CDparasitic = 0.038  # From parasitic drag study
+CDtotSweep = CDiSweep + CDparasitic * np.ones(len(CDiSweep))
 
 # Plot x vs AoA quantities
 
@@ -648,8 +652,9 @@ fig, ax = plt.subplots()
 ax.set_title('Drag polar')
 ax.set_xlabel('C_Dtot [-]')
 ax.set_ylabel('C_L [-]')
+ax.set_xlim([0, 0.07])
 ax.grid()
-ax.plot(CDiSweep, CLSweep)  # TODO add parasitic drag
+ax.plot(CDtotSweep, CLSweep)
 
 # Save figure
 figureDPI = 200
