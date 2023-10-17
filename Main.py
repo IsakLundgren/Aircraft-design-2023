@@ -234,6 +234,7 @@ eshpRatio = (60 + 80) * 1/100
 P_W0thrustmatch = P_Wcruise * 1 / eshpRatio * Wcruise_W0
 
 P_W0cruise = max([P_W0statistical, P_W0thrustmatch])
+T_W0cruise = P_W0cruise * etaPropeller / (Vcruise * gravity)
 
 # Climb
 takeoffToCruiseTime = 15.5 * 60  # s
@@ -578,17 +579,28 @@ print(f'\nCruise Reynolds number: {ReCref:.3g}')
 
 DPropHub = 4.250 / 6.430
 print(f'Propeller hub diameter: {DPropHub:.3g} m')
-Tcruise = T_Wcruise * W0 * Wcruise_W0 * gravity
-thrustCoeff = Tcruise / (rhoCruise * rpsPropeller ** 2 * Dpropeller ** 4 * NEn)
-powerCoeff = Pcruise / (rhoCruise * rpsPropeller ** 3 * Dpropeller ** 5 * NEn)
+
+rpsPropellerCruise = 800 / 60
+P_W0cruise = P_W0thrustmatch
+T_W0cruise = P_W0cruise * etaPropeller / (Vcruise * gravity)
+Tcruise = T_W0cruise * W0 * gravity
+thrustCoeff = Tcruise / (rhoCruise * rpsPropellerCruise ** 2 * Dpropeller ** 4 * NEn)
+Pcruise = P_W0cruise * W0
+powerCoeff = Pcruise / (rhoCruise * rpsPropellerCruise ** 3 * Dpropeller ** 5 * NEn)
 print(f'Thrust coefficient: {thrustCoeff:.3g}')
-print(f'Power coefficinet: {powerCoeff:.3g}')
+print(f'Power coefficient: {powerCoeff:.3g}')
+
+# Find the cruise CL
+Wcruise = Wcruise_W0 * W0  # kg
+Lcruise = Wcruise * gravity  # N
+CLcruise = Lcruise / (rhoCruise * Vcruise ** 2 * S)
+print(f'\nCruise lift coefficient: {CLcruise:.3g}.')
 
 ## VSPAero results
 
 # Read the VSP results
 data = {}
-with open('csv/VSPAeroResultsCamber4Incidence2.csv', 'r', newline='') as csvfile:
+with open('csv/VSPAeroResultsCamber2Incidence1Corrected.csv', 'r', newline='') as csvfile:
     reader = csv.reader(csvfile, skipinitialspace=True)
     validDataCheck = True
     for row in reader:
@@ -616,11 +628,20 @@ CDSweep = data['CDtot']
 CLSweep = data['CL']
 
 # Add the parasitic drag to get the CDtotal
-CDparasitic = 0.038  # From parasitic drag study
+CDparasitic = 0.0222  # From parasitic drag study
 CDtotSweep = CDiSweep + CDparasitic * np.ones(len(CDiSweep))
 
-# Plot x vs AoA quantities
+# Calculate the design angle of attack
+alphaInterpolated = 0
+for i in range(len(alphaSweep) - 1):
+    if CLSweep[i] <= CLcruise <= CLSweep[i + 1]:
+        x1, y1 = alphaSweep[i], CLSweep[i]
+        x2, y2 = alphaSweep[i + 1], CLSweep[i + 1]
+        # Linear interpolation formula
+        alphaInterpolated = x1 + (CLcruise - y1) * (x2 - x1) / (y2 - y1)
+print(f'Cruise angle of attack: {alphaInterpolated:.3g} degrees.')
 
+# Plot x vs AoA quantities
 colors = ['tab:red', 'tab:blue', 'tab:green']
 fig, ax = plt.subplots()
 ax.set_title('Angle sweep results')
@@ -652,14 +673,27 @@ fig, ax = plt.subplots()
 ax.set_title('Drag polar')
 ax.set_xlabel('C_Dtot [-]')
 ax.set_ylabel('C_L [-]')
-ax.set_xlim([0, 0.07])
 ax.grid()
-ax.plot(CDtotSweep, CLSweep)
+ax.plot(CDtotSweep, CLSweep, color='blue')
 
 # Save figure
 figureDPI = 200
 fig.set_size_inches(8, 6)
 fig.savefig('img/DragPolar.png', dpi=figureDPI)
+
+# Plot angle of attack vs CL
+fig, ax = plt.subplots()
+ax.set_title('Lift coefficient per angle of attack')
+ax.set_xlabel('AoA [deg]')
+ax.set_ylabel('C_L [-]')
+ax.grid()
+ax.plot(alphaSweep, CLSweep, color='blue')
+ax.scatter([alphaInterpolated], [CLcruise], color='red')
+
+# Save figure
+figureDPI = 200
+fig.set_size_inches(8, 6)
+fig.savefig('img/AoACL.png', dpi=figureDPI)
 
 
 ### Show the plots
