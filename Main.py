@@ -4,6 +4,8 @@ from scipy.optimize import fsolve
 import matplotlib.pyplot as plt
 import warnings
 import csv
+from mpl_toolkits import axisartist
+from mpl_toolkits.axes_grid1 import host_subplot
 
 warnings.filterwarnings("ignore")
 
@@ -593,14 +595,14 @@ print(f'Power coefficient: {powerCoeff:.3g}')
 # Find the cruise CL
 Wcruise = Wcruise_W0 * W0  # kg
 Lcruise = Wcruise * gravity  # N
-CLcruise = Lcruise / (rhoCruise * Vcruise ** 2 * S)
+CLcruise = Lcruise / (0.5 * rhoCruise * Vcruise ** 2 * S)
 print(f'\nCruise lift coefficient: {CLcruise:.3g}.')
 
 ## VSPAero results
 
 # Read the VSP results
 data = {}
-with open('csv/VSPAeroResultsCamber2Incidence1Corrected.csv', 'r', newline='') as csvfile:
+with open('csv/C2I1FW.csv', 'r', newline='') as csvfile:
     reader = csv.reader(csvfile, skipinitialspace=True)
     validDataCheck = True
     for row in reader:
@@ -631,6 +633,10 @@ CLSweep = data['CL']
 CDparasitic = 0.0222  # From parasitic drag study
 CDtotSweep = CDiSweep + CDparasitic * np.ones(len(CDiSweep))
 
+# Adjust the lift to drag ratio by removing the CDtot from VSPAero and add CDtot with parasitic drag
+for i in range(len(L_DSweep)):
+    L_DSweep[i] *= (CDSweep[i] / CDtotSweep[i])
+
 # Calculate the design angle of attack
 alphaInterpolated = 0
 for i in range(len(alphaSweep) - 1):
@@ -644,6 +650,7 @@ print(f'Cruise angle of attack: {alphaInterpolated:.3g} degrees.')
 # Plot x vs AoA quantities
 colors = ['tab:red', 'tab:blue', 'tab:green']
 fig, ax = plt.subplots()
+fig.subplots_adjust(right=0.75)
 ax.set_title('Angle sweep results')
 ax.set_xlabel('Alpha [deg]')
 ax.grid()
