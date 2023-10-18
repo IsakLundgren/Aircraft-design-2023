@@ -4,8 +4,6 @@ from scipy.optimize import fsolve
 import matplotlib.pyplot as plt
 import warnings
 import csv
-from mpl_toolkits import axisartist
-from mpl_toolkits.axes_grid1 import host_subplot
 
 warnings.filterwarnings("ignore")
 
@@ -531,7 +529,7 @@ dictMass['Electrics'] = 7.291 * Rkva ** 0.782 * (La / m_feet) ** 0.346 * Ngen **
 dictMass['Avionics'] = (1.73 * (muav / kg_lbs) ** 0.983) * kg_lbs  # kg
 dictMass['Furnishings'] = (
         (0.0577 * Nc ** 0.1 * (Wpayload / kg_lbs) ** 0.393 * (Swet_Sref * S / m_feet ** 2) ** 0.75) * kg_lbs)  # kg
-dictMass['Seats'] = 15 * passengerCount + 27 * (crewCount - 3) + 15 * (crewCount - 2) # kg
+dictMass['Seats'] = 15 * passengerCount + 27 * (crewCount - 3) + 15 * (crewCount - 2)  # kg
 dictMass['Air-conditioning'] = (62.36 * Np ** 0.25 * (Vpr / m_feet ** 3 / 1000) ** 0.604 * muav ** 0.1) * kg_lbs  # kg
 dictMass['Anti-ice'] = 0.002 * mdg  # kg
 dictMass['HandlingGear'] = 3e-4 * mdg  # kg
@@ -602,7 +600,7 @@ print(f'\nCruise lift coefficient: {CLcruise:.3g}.')
 
 # Read the VSP results
 data = {}
-with open('csv/C2I1FW.csv', 'r', newline='') as csvfile:
+with open('csv/C2I1.csv', 'r', newline='') as csvfile:
     reader = csv.reader(csvfile, skipinitialspace=True)
     validDataCheck = True
     for row in reader:
@@ -694,8 +692,9 @@ ax.set_title('Lift coefficient per angle of attack')
 ax.set_xlabel('AoA [deg]')
 ax.set_ylabel('C_L [-]')
 ax.grid()
-ax.plot(alphaSweep, CLSweep, color='blue')
-ax.scatter([alphaInterpolated], [CLcruise], color='red')
+ax.plot(alphaSweep, CLSweep, color='blue', label='Sweep')
+ax.scatter([alphaInterpolated], [CLcruise], color='red', label='Cruise point', zorder=10)
+ax.legend()
 
 # Save figure
 figureDPI = 200
