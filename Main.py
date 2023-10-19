@@ -653,6 +653,16 @@ ax.set_title('Angle sweep results')
 ax.set_xlabel('Alpha [deg]')
 ax.grid()
 
+ax.vlines(
+    x=alphaInterpolated,
+    color='m',
+    linestyles='--',
+    label='Design AoA',
+    ymin=min(CMySweep),
+    ymax=max(CMySweep)
+)
+ax.legend(loc='upper center')
+
 ax.set_ylabel('C_My [-]', color=colors[0])
 ax.plot(alphaSweep, CMySweep, color=colors[0])
 ax.tick_params(axis='y', labelcolor=colors[0])
@@ -694,6 +704,10 @@ ax.set_ylabel('C_L [-]')
 ax.grid()
 ax.plot(alphaSweep, CLSweep, color='blue', label='Sweep')
 ax.scatter([alphaInterpolated], [CLcruise], color='red', label='Cruise point', zorder=10)
+ax.vlines(x=alphaInterpolated, color='r', linestyles='--', ymin=min(CLSweep), ymax=max(CLSweep))
+ax.axhline(y=CLcruise, color='r', linestyle='--', xmin=alphaSweep[0], xmax=alphaSweep[-1])
+ax.set_xlim([alphaSweep[0], alphaSweep[-1]])
+ax.set_ylim([CLSweep[0], CLSweep[-1]])
 ax.legend()
 
 # Save figure
